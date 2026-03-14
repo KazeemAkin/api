@@ -63,4 +63,5 @@ config/autoload/
 config/autoload/*.env
 *.key
 App/assets/
-
+launch.json
+.vscode/

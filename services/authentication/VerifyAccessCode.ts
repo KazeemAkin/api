@@ -4,13 +4,11 @@ import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
 import Utilities from "../../api-liberaries/utilities/Utilities";
 import {
   empty,
-  isArray,
+  isDbObjectValid,
   isObject,
   isUndefined,
   sanitizeAndValidateRequest,
-  sanitizePhoneNumber,
 } from "../../api-liberaries/utilities/utils";
-import AuthConfig from "../../middlewares/AutConfig";
 import UsersModel from "../../models/Users";
 
 class VerifyAccessCode {
@@ -24,65 +22,62 @@ class VerifyAccessCode {
     try {
       if (empty(postData)) {
         return BaseExceptions.badRequest(
-          "Sorry, the request body cannot be empty."
+          "Sorry, the request body cannot be empty.",
         );
       }
 
       const schema = {
-        phone_number: { type: "string" },
-        otp: { type: "string" },
+        email: { type: "email" },
+        access_code: { type: "string" },
       };
 
-      const validatedInputs = sanitizeAndValidateRequest(postData, schema);
-      if (!empty(validatedInputs) && !empty(validatedInputs.errors)) {
+      const validated_inputs = sanitizeAndValidateRequest(postData, schema);
+      if (!empty(validated_inputs) && !empty(validated_inputs.errors)) {
         return BaseExceptions.forbidden(
-          Object.values(validatedInputs.errors).join(", ")
+          Object.values(validated_inputs.errors).join(", "),
         );
       }
-      const sanitizedInput = isObject(validatedInputs?.sanitizedValues)
-        ? validatedInputs.sanitizedValues
+      const sanitized_input = isObject(validated_inputs?.sanitizedValues)
+        ? validated_inputs.sanitizedValues
         : {};
 
       // assign input values
-      let phone_number = sanitizedInput?.phone_number || "";
-      phone_number = sanitizePhoneNumber(phone_number);
-      const otp = sanitizedInput?.otp || "";
-
-      if (empty(phone_number)) {
-        return BaseExceptions.badRequest("Invalid Phone number provided.");
-      }
+      const access_code = sanitized_input?.access_code || "";
+      const email = sanitized_input?.email || "";
 
       const usersModel = new UsersModel();
-      // check if user exists already - phone_number
+      // check if user exists already - email
       const user: DynamicObjectType = await usersModel.getRowByField({
-        phone_number,
+        email,
       });
 
-      if (!user) {
+      if (!isDbObjectValid(user)) {
         return BaseExceptions.notFound("User not found!");
       }
 
       // compare access code
-      const registeredAccessCode = !isUndefined(user.accessCode)
-        ? user.accessCode
+      const registered_access_code = !isUndefined(user.access_code)
+        ? user.access_code
         : "";
-      const accessCodeExpirationTime = !isUndefined(
-        user.accessCodeExpirationTime
+      const access_code_expiration_time = !isUndefined(
+        user.access_code_expiration_time,
       )
-        ? user.accessCodeExpirationTime
+        ? user.access_code_expiration_time
         : "";
-      if (parseInt(otp) !== registeredAccessCode) {
+      if (parseInt(access_code) !== registered_access_code) {
         return BaseExceptions.unauthorized("Sorry, access code mismatch");
       }
       // compare access code expiration time
-      const currentTime = Utilities.getNow();
-      if (currentTime >= accessCodeExpirationTime) {
+      const current_time = Utilities.getNow();
+      if (current_time >= access_code_expiration_time) {
         return BaseExceptions.unauthorized("Sorry, access code is expired.");
       }
 
       const payload = {
-        accessCode: "",
-        accessCodeExpirationTime: "",
+        access_code: "",
+        access_code_expiration_time: "",
+        email,
+        access_code_count: 0,
       };
 
       await usersModel.updateOneRecord({ _id: user._id }, payload);
@@ -93,49 +88,10 @@ class VerifyAccessCode {
         return SuccessResponse.jsonResponse({ user: { restricted } });
       }
 
-      // check if user has previously been registered
-      const registered = !empty(user.registered) ? user.registered : false;
-      if (registered) {
-        const userId = user._id || "";
-        const userType = isArray(user?.userTypes) ? user.userTypes : ["Client"];
-        // sign user jwt
-        // jwt encoding
-        const issuedAt = Math.floor(Date.now() / 1000);
-        const jwtPayload = {
-          sub: userId,
-          iat: issuedAt,
-          phoneNumber: user?.phone_number || "",
-          userType,
-        };
-        const jwt = await AuthConfig.signJWTToken(jwtPayload);
-        if (!jwt) {
-          return BaseExceptions.unauthorized(
-            "Authentication failed. Try again later."
-          );
-        }
-        const userData = {
-          phone_number: user?.phone_number || "",
-          id: user._id,
-          registered: !empty(user.registered) ? user.registered : false,
-          userType: user.userTypes || ["Client"],
-          fullName: user?.fullName || "",
-          userName: user?.username || "",
-          address: user?.address || "",
-          avatar: user?.avatar || "",
-        };
-        return SuccessResponse.jsonResponse({
-          jwt,
-          user: userData,
-        });
-      }
-
       return SuccessResponse.jsonResponse({
         user: {
-          phone_number,
+          email,
           id: user._id,
-          registered,
-          firstStageRegistrationCompleted:
-            user.firstStageRegistrationCompleted || false,
           restricted,
         },
       });

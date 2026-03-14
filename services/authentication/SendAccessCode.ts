@@ -1,4 +1,4 @@
-import SendSMS from "../../api-liberaries/services/SMS";
+import MailService from "../../api-liberaries/services/Mail";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
@@ -6,17 +6,14 @@ import Utilities from "../../api-liberaries/utilities/Utilities";
 import {
   empty,
   isDbObjectValid,
-  isString,
   sanitizeAndValidateRequest,
-  sanitizePhoneNumber,
-  toInternationalFormat,
 } from "../../api-liberaries/utilities/utils";
 
 import UsersModel from "../../models/Users";
 
 // type
 export type SendAccessCodePostType = {
-  phone_number: string;
+  email: string;
 };
 
 class SendAccessCode {
@@ -30,35 +27,30 @@ class SendAccessCode {
     const post = !empty(post_data) ? post_data : {};
     if (empty(post)) {
       return BaseExceptions.badRequest(
-        "Sorry, the request body cannot be empty."
+        "Sorry, the request body cannot be empty.",
       );
     }
 
     const schema = {
-      country_code: { type: "string", rules: { minLength: 4, maxLength: 5 } },
-      phone_number: { type: "string", rules: { minLength: 10, maxLength: 16 } },
+      email: { type: "email", rules: { minLength: 10, maxLength: 50 } },
     };
-    const validatedInputs = sanitizeAndValidateRequest(post, schema);
-    if (!empty(validatedInputs) && !empty(validatedInputs.errors)) {
+    const validated_inputs = sanitizeAndValidateRequest(post, schema);
+    if (!empty(validated_inputs) && !empty(validated_inputs.errors)) {
       return BaseExceptions.forbidden(
-        Object.values(validatedInputs.errors).join(", ")
+        Object.values(validated_inputs.errors).join(", "),
       );
     }
-    const sanitizedInput =
-      !empty(validatedInputs) && !empty(validatedInputs.sanitizedValues)
-        ? validatedInputs.sanitizedValues
+    const sanitized_input =
+      !empty(validated_inputs) && !empty(validated_inputs.sanitizedValues)
+        ? validated_inputs.sanitizedValues
         : {};
 
-    let phone_number = sanitizedInput?.phone_number || "";
-    phone_number = sanitizePhoneNumber(phone_number);
-    const country_code = sanitizedInput?.country_code || "";
-    const $phone_number = toInternationalFormat(phone_number, country_code);
-    if (!isString($phone_number)) {
-      return BaseExceptions.badRequest("Sorry, failed to process request.");
-    }
-
-    if (empty(phone_number)) {
-      return BaseExceptions.badRequest("Invalid Phone number provided.");
+    const email = sanitized_input?.email || "";
+    // verify tha email is a valid school email
+    if (!email.endsWith("@northumbria.ac.uk")) {
+      return BaseExceptions.forbidden(
+        "Sorry, only school email addresses are allowed.",
+      );
     }
 
     // db model
@@ -66,48 +58,61 @@ class SendAccessCode {
 
     // get user registered access code and expiration time
     let user: DynamicObjectType = await usersModel.getRowByField({
-      phone_number,
+      email,
     });
     if (!isDbObjectValid(user)) {
       // add user
-      const newUserPayload = { phone_number, restricted: false };
-      const newUser: boolean = await usersModel.addOne(newUserPayload);
-      if (!newUser) {
+      const new_user_payload = {
+        email,
+        restricted: false,
+      };
+      const new_user: boolean = await usersModel.addOne(new_user_payload);
+      if (!new_user) {
         return BaseExceptions.badRequest("Sorry, failed to process request.");
       }
       user = await usersModel.getRowByField({
-        phone_number,
+        email,
       });
       if (!isDbObjectValid(user)) {
         return BaseExceptions.badRequest("Sorry, failed to process request.");
       }
     }
 
+    const current_time = Utilities.getNow();
+    if (
+      user?.access_code_count >= 9 &&
+      current_time <= user?.access_code_expiration_time
+    ) {
+      return BaseExceptions.unauthorized(
+        "Sorry, you have exceeded the maximum number of access code requests in one(1) hour. Please try again later.",
+      );
+    }
+
     // generate access code
-    const accessCode = await Utilities.generateAccessCode();
-    const accessCodeExpirationTime = Utilities.getExpirationTime(60); // 60 minutes (1 hour)
+    const access_code = await Utilities.generateAccessCode();
+    const access_code_expiration_time = Utilities.getExpirationTime(60); // 60 minutes (1 hour)
     const payload = {
-      accessCodeExpirationTime,
-      accessCode,
+      access_code_expiration_time: access_code_expiration_time,
+      access_code,
     };
 
     //update user
     const updateUser = await usersModel.updateOneRecord(
       { _id: user._id },
-      payload
+      payload,
     );
     if (!updateUser) {
-      return BaseExceptions.internalServerError("Something went wrong");
+      return BaseExceptions.internalServerError("Failed to send access code.");
     }
-    // send sms
-    const sendSMS = await SendSMS({
-      receiver: $phone_number,
-      message: `Your one-time access code is: ${accessCode}. Do not share this code with anyone.`,
-    });
 
-    if (!sendSMS) {
-      return BaseExceptions.badRequest("Something went wrong");
-    }
+    // const mail = new MailService();
+    // const send_access_code = await mail.sendAccessCodeEmail({
+    //   access_code,
+    //   email: user?.email || "",
+    // });
+    // if (!send_access_code) {
+    //   return BaseExceptions.badRequest("Failed to send access code.");
+    // }
 
     return SuccessResponse.response();
   }

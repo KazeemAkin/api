@@ -1,6 +1,5 @@
 import { DynamicObjectType } from "../types/global.data";
-
-const BaseModel = require("../../App/models/BaseModel");
+import { isDbObjectValid } from "../utilities/utils";
 
 class PaymentServices {
   /**
@@ -14,7 +13,7 @@ class PaymentServices {
     sessionId = "",
     schoolId = "",
     paymentType = "",
-    paymentStatus = ""
+    paymentStatus = "",
   ) {
     try {
       if (
@@ -41,7 +40,7 @@ class PaymentServices {
       const dbModel = new BaseModel();
       const verifyPayment = await dbModel.getRowByField(
         "paymentHistory",
-        conditions
+        conditions,
       );
       if (!isDbObjectValid(verifyPayment)) {
         return false;

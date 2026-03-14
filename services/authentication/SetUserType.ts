@@ -8,27 +8,26 @@ import {
   isObject,
   sanitizeAndValidateRequest,
 } from "../../api-liberaries/utilities/utils";
-import AuthConfig from "../../middlewares/AutConfig";
 import UsersModel from "../../models/Users";
 
 class SetUserType {
   /**
    * Set user type
-   * @param postData
+   * @param post_data
    * @returns
    */
-  async process(postData: DynamicObjectType) {
+  async process(post_data: DynamicObjectType) {
     try {
-      if (empty(postData)) {
+      if (empty(post_data)) {
         return BaseExceptions.badRequest(
-          "Sorry, the request body cannot be empty."
+          "Sorry, the request body cannot be empty.",
         );
       }
       //get request body
-      const post = !empty(postData) ? postData : {};
+      const post = !empty(post_data) ? post_data : {};
       if (empty(post)) {
         return BaseExceptions.badRequest(
-          "Sorry, the request body cannot be empty."
+          "Sorry, the request body cannot be empty.",
         );
       }
 
@@ -37,59 +36,41 @@ class SetUserType {
         user_type: { type: "string" },
       };
 
-      const validatedInputs = sanitizeAndValidateRequest(post, schema);
-      if (!empty(validatedInputs) && !empty(validatedInputs.errors)) {
+      const validated_inputs = sanitizeAndValidateRequest(post, schema);
+      if (!empty(validated_inputs) && !empty(validated_inputs.errors)) {
         return BaseExceptions.forbidden(
-          Object.values(validatedInputs.errors).join(", ")
+          Object.values(validated_inputs.errors).join(", "),
         );
       }
-      const sanitizedInput = isObject(validatedInputs?.sanitizedValues)
-        ? validatedInputs.sanitizedValues
+      const sanitized_input = isObject(validated_inputs?.sanitizedValues)
+        ? validated_inputs.sanitizedValues
         : {};
 
       // assign input values
-      const userId = sanitizedInput?.user_id || "";
-      const userType = sanitizedInput?.user_type || "Client";
+      const user_id = sanitized_input?.user_id || "";
+      const user_type = sanitized_input?.user_type || "Client";
 
       const usersModel = new UsersModel();
       // check if user exists already - phone_number
       const user: DynamicObjectType = await usersModel.getRowByField({
-        _id: userId,
+        _id: user_id,
       });
       if (!user) {
         return BaseExceptions.notFound("User not found!");
       }
 
-      const _userType = isArray(user?.userTypes) ? user.userTypes : [];
-      if (!_userType.includes(userType) && USER_TYPES.includes(userType)) {
-        _userType.push(userType);
+      const _user_type = isArray(user?.userTypes) ? user.userTypes : [];
+      if (!_user_type.includes(user_type) && USER_TYPES.includes(user_type)) {
+        _user_type.push(user_type);
       }
       const payload: DynamicObjectType = {
-        userTypes: _userType,
-        updatedAt: new Date(),
+        user_type: _user_type,
+        current_user_type: user_type,
+        updated_at: new Date(),
       };
-      await usersModel.updateOneRecord({ _id: userId }, payload);
+      await usersModel.updateOneRecord({ _id: user_id }, payload);
 
-      // sign user jwt
-      // jwt encoding
-      const issuedAt = Math.floor(Date.now() / 1000);
-      const jwtPayload = {
-        sub: userId,
-        iat: issuedAt,
-        phoneNumber: user?.phone_number || "",
-        userType,
-      };
-      const jwt = await AuthConfig.signJWTToken(jwtPayload);
-      if (!jwt) {
-        return BaseExceptions.unauthorized(
-          "Authentication failed. Try again later."
-        );
-      }
-
-      return SuccessResponse.jsonResponse({
-        jwt,
-        user: { id: userId },
-      });
+      return SuccessResponse.response();
     } catch (error) {
       console.log(error);
       return BaseExceptions.unauthorized("Something went wrong!");

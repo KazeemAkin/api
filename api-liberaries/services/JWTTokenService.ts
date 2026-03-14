@@ -86,7 +86,7 @@ class JWTTokenService {
       const jwtTokenModel = new JWTTokenModel();
       const updateRefreshToken = await jwtTokenModel.updateOneRecord(
         { tokenId: id },
-        payload
+        payload,
       );
       if (!updateRefreshToken) {
         return false;
