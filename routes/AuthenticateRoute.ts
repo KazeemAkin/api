@@ -2,7 +2,9 @@ import express, { Router } from "express";
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import AuthenticationController from "../controllers/AuthenticationController";
 import {
+  ROUTE_REGISTER_USER,
   ROUTE_SEND_ACCESS_CODE,
+  ROUTE_SET_USER_TYPE,
   ROUTE_VERIFY_ACCESS_CODE,
 } from "../config/api-routes";
 
@@ -22,13 +24,13 @@ router.patch(ROUTE_VERIFY_ACCESS_CODE, (req: AppRequest, res: AppResponse) => {
 });
 
 // register user
-router.patch("/register-user", (req: AppRequest, res: AppResponse) => {
+router.patch(ROUTE_REGISTER_USER, (req: AppRequest, res: AppResponse) => {
   const authController = new AuthenticationController();
   return authController.patchRegisterUser(req, res);
 });
 
 // set user type
-router.patch("/set-user-type", (req: AppRequest, res: AppResponse) => {
+router.patch(ROUTE_SET_USER_TYPE, (req: AppRequest, res: AppResponse) => {
   const authController = new AuthenticationController();
   return authController.patchSetUserType(req, res);
 });

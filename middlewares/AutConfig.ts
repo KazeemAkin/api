@@ -51,8 +51,8 @@ class AuthConfig {
       const userId = !empty(tokenPayload.sub)
         ? tokenPayload.sub.toString()
         : "";
-      const userType = !empty(tokenPayload.userType)
-        ? tokenPayload.userType
+      const userType = !empty(tokenPayload.user_type)
+        ? tokenPayload.user_type
         : "";
       const refreshToken = await AuthConfig.saveRefreshToken(userId, userType);
       if (!refreshToken) {
@@ -63,12 +63,12 @@ class AuthConfig {
       const signPayload = { ...tokenPayload, refreshToken };
       const privateKey = fs.readFileSync(
         path.join(__dirname, "../private.key"),
-        "utf8"
+        "utf8",
       );
       const token = jwt.sign(
         signPayload,
         privateKey,
-        AuthConfig.jwtSigninOptions
+        AuthConfig.jwtSigninOptions,
       ); // Sync, no await needed
 
       if (!token) {
@@ -91,7 +91,7 @@ class AuthConfig {
   // Pure logic: Save refresh token. Unchanged but returns string | false consistently.
   static async saveRefreshToken(
     userId: string,
-    userType: string
+    userType: string,
   ): Promise<string | false> {
     try {
       let id = "";
@@ -127,7 +127,7 @@ class AuthConfig {
   // Pure logic: Refresh token without HTTP. Returns new token or false.
   static async refreshTokenPure(
     authorization: string,
-    userCollection: string
+    userCollection: string,
   ): Promise<TokenResult> {
     // Renamed to avoid conflict
     try {
@@ -163,7 +163,7 @@ class AuthConfig {
       const jwtTokenService = new JWTTokenService();
       const refreshTokenDetails = await jwtTokenService.getToken(
         refreshToken,
-        userId
+        userId,
       );
       if (empty(refreshTokenDetails)) {
         return { success: false, error: "Refresh token not found" };
@@ -182,7 +182,7 @@ class AuthConfig {
       const tokenId = refreshTokenData.tokenId || "";
       const updateRefreshToken = await jwtTokenService.updateToken(
         refreshTokenData,
-        tokenId
+        tokenId,
       );
       if (!updateRefreshToken) {
         return { success: false, error: "Failed to update refresh token" };
@@ -190,7 +190,7 @@ class AuthConfig {
 
       const privateKey = fs.readFileSync(
         path.join(__dirname, "../private.key"),
-        "utf8"
+        "utf8",
       );
       const email = !empty(user.email) ? user.email : "";
       const issuedAt = Math.floor(Date.now() / 1000);
@@ -205,7 +205,7 @@ class AuthConfig {
       const accessToken = jwt.sign(
         jwtPayload,
         privateKey,
-        AuthConfig.jwtSigninOptions
+        AuthConfig.jwtSigninOptions,
       );
       if (!accessToken) {
         return { success: false, error: "Failed to sign new access token" };
@@ -230,7 +230,7 @@ class AuthConfig {
     try {
       privateKey = fs.readFileSync(
         path.join(__dirname, "../private.key"),
-        "utf8"
+        "utf8",
       );
       if (empty(authorization)) {
         return { success: false, error: "Empty authorization" };
@@ -239,7 +239,7 @@ class AuthConfig {
       const decoded = jwt.verify(
         jwtToken,
         privateKey,
-        AuthConfig.jwtVerifyOptions
+        AuthConfig.jwtVerifyOptions,
       ) as DynamicObjectType;
       if (!decoded) {
         return { success: false, error: "Verification failed" };
@@ -255,7 +255,7 @@ class AuthConfig {
       // Auto-refresh attempt (pure version)
       const refreshResult = await AuthConfig.refreshTokenPure(
         authorization,
-        "users"
+        "users",
       ); // Default collection; make param if needed
       if (refreshResult.success) {
         // Decode the original for req.user* (as fallback)
@@ -274,7 +274,7 @@ class AuthConfig {
   // Pure logic: Logout (delete token). Returns success boolean.
   static async logOutPure(
     userId: string,
-    refreshToken: string
+    refreshToken: string,
   ): Promise<boolean> {
     try {
       const jwtTokenService = new JWTTokenService();
@@ -291,11 +291,11 @@ class AuthConfig {
 
   static async refreshToken(
     req: AppRequest,
-    res: AppResponse
+    res: AppResponse,
   ): Promise<boolean> {
     const result = await AuthConfig.refreshTokenPure(
       req.headers.authorization || "",
-      "users"
+      "users",
     ); // Pass collection as needed
     if (result.success && result.accessToken) {
       res.setHeader("AccessToken", result.accessToken);
@@ -309,14 +309,14 @@ class AuthConfig {
   static async verifyUser(
     req: AppRequest,
     res: AppResponse,
-    next: NextFunction
+    next: NextFunction,
   ) {
     const result = await AuthConfig.verifyTokenPure(
-      req.headers.authorization || ""
+      req.headers.authorization || "",
     );
     if (!result.success) {
       return BaseExceptions.unauthorized(
-        result.error || "Invalid authentication token"
+        result.error || "Invalid authentication token",
       );
     }
     // Set on req for downstream use
@@ -327,14 +327,14 @@ class AuthConfig {
     }
     res.setHeader(
       "AccessToken",
-      req.headers.authorization?.split(" ")[1] || ""
+      req.headers.authorization?.split(" ")[1] || "",
     ); // Preserve original
     return next();
   }
 
   static async logOut(req: AppRequest, res: AppResponse): Promise<boolean> {
     const verifyResult = await AuthConfig.verifyTokenPure(
-      req.headers.authorization || ""
+      req.headers.authorization || "",
     );
     if (!verifyResult.success) {
       res.status(401).json({ error: "Invalid token for logout" });
@@ -342,7 +342,7 @@ class AuthConfig {
     }
     const success = await AuthConfig.logOutPure(
       verifyResult.userId || "",
-      verifyResult.decoded?.refreshToken || ""
+      verifyResult.decoded?.refreshToken || "",
     );
     if (success) {
       // res.clearHeader("AccessToken");

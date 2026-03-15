@@ -1,4 +1,4 @@
-import AnciemAws from "../../api-liberaries/services/aws";
+import { hash_password } from "../../api-liberaries/services/Encryption";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
@@ -33,10 +33,10 @@ class RegisterUser {
         first_name: { type: "string" },
         email: { type: "email" },
         last_name: { type: "string" },
-        address: { type: "string" },
-        country: { type: "string" },
         username: { type: "string" },
         phone_number: { type: "string" },
+        password: { type: "string" },
+        confirm_password: { type: "string" },
       };
 
       const validated_inputs = sanitizeAndValidateRequest(post, schema);
@@ -53,11 +53,17 @@ class RegisterUser {
       const email = sanitizedInput?.email || "";
       const first_name = sanitizedInput?.first_name || "";
       const last_name = sanitizedInput?.last_name || "";
-      const address = sanitizedInput?.address || "";
-      const country = sanitizedInput?.country || "";
+      const password = sanitizedInput?.password || "";
+      const confirm_password = sanitizedInput?.confirm_password || "";
       const username = sanitizedInput?.username || "";
-      const avatar = post?.avatar || "";
       const phone_number = post?.phone_number || "";
+
+      if (password !== confirm_password) {
+        return BaseExceptions.forbidden(
+          "Password and confirm password do not match.",
+        );
+      }
+
       const usersModel = new UsersModel();
       // check if user exists already - email
       const user: DynamicObjectType = await usersModel.getRowByField({
@@ -81,36 +87,22 @@ class RegisterUser {
         return SuccessResponse.jsonResponse({ restricted: true });
       }
 
+      // encrypt password
+      const encrypted_password = await hash_password(password);
+      if (!encrypted_password) {
+        return BaseExceptions.badRequest("Sorry, failed to process request.");
+      }
+
       const payload: DynamicObjectType = {
         first_name,
         last_name,
-        address,
-        country,
         phone_number,
         username,
+        password: encrypted_password,
         registration_completed: true,
         registered: true,
         date_registered: new Date(),
       };
-      // upload avatar image
-      let upload_image: DynamicObjectType = {};
-      if (!empty(avatar)) {
-        const timestamp = new Date().getTime();
-        const file_path = `avatar/profile-image-${timestamp}.png`;
-        upload_image = (await AnciemAws.uploadS3Image(
-          avatar,
-          file_path,
-        )) as DynamicObjectType;
-        if (
-          empty(upload_image) ||
-          empty(upload_image.data) ||
-          empty(upload_image.data.Location)
-        ) {
-          return BaseExceptions.badRequest("Failed to upload image.");
-        }
-
-        payload.avatar = upload_image?.data?.Location || "";
-      }
 
       // sign user jwt
       // jwt encoding
@@ -119,7 +111,7 @@ class RegisterUser {
         sub: user._id,
         iat: issued_at,
         email,
-        user_type: isArray(user?.user_types) ? user.user_types : ["Client"],
+        user_type: isArray(user?.user_types) ? user.user_types : ["Buyer"],
       };
       const jwt = await AuthConfig.signJWTToken(jwt_payload);
       if (!jwt) {
@@ -128,7 +120,13 @@ class RegisterUser {
         );
       }
 
-      await usersModel.updateOneRecord({ _id: user._id }, payload);
+      const updateUser = await usersModel.updateOneRecord(
+        { _id: user._id },
+        payload,
+      );
+      if (!updateUser) {
+        return BaseExceptions.internalServerError("Failed to register user.");
+      }
       return SuccessResponse.jsonResponse({
         jwt,
         user: { email, id: user._id, registered: true },
