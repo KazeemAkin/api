@@ -77,9 +77,9 @@ class RegisterUser {
       // check if user has previously been registered
       const registered = !empty(user.registered) ? user.registered : false;
       if (registered) {
-        return SuccessResponse.jsonResponse({
-          message: `User with email ${email} is already registered.`,
-        });
+        return BaseExceptions.forbidden(
+          `User with email ${email} is already registered.`,
+        );
       }
       // check if user's account has been blocked
       const restricted = user.restricted || false;
@@ -129,7 +129,15 @@ class RegisterUser {
       }
       return SuccessResponse.jsonResponse({
         jwt,
-        user: { email, id: user._id, registered: true },
+        user: {
+          email,
+          id: user._id,
+          registered: true,
+          first_name,
+          last_name,
+          phone_number,
+          username,
+        },
       });
     } catch (error) {
       console.log(error);

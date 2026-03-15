@@ -7,32 +7,51 @@ import {
   ROUTE_SET_USER_TYPE,
   ROUTE_VERIFY_ACCESS_CODE,
 } from "../config/api-routes";
+import AuthConfig from "../middlewares/AutConfig";
 
 //middlewares
 const router: Router = express.Router();
 
+import { Request, Response } from "express";
+
 // send access code route
-router.post(ROUTE_SEND_ACCESS_CODE, (req: AppRequest, res: AppResponse) => {
+router.post(ROUTE_SEND_ACCESS_CODE, (req: Request, res: Response) => {
   const authController = new AuthenticationController();
-  return authController.postSendAccessCode(req, res);
+  return authController.postSendAccessCode(
+    req as AppRequest,
+    res as AppResponse,
+  );
 });
 
 // verify access code
-router.patch(ROUTE_VERIFY_ACCESS_CODE, (req: AppRequest, res: AppResponse) => {
+router.patch(ROUTE_VERIFY_ACCESS_CODE, (req: Request, res: Response) => {
   const authController = new AuthenticationController();
-  return authController.patchVerifyAccessCode(req, res);
+  return authController.patchVerifyAccessCode(
+    req as AppRequest,
+    res as AppResponse,
+  );
 });
 
 // register user
-router.patch(ROUTE_REGISTER_USER, (req: AppRequest, res: AppResponse) => {
+router.patch(ROUTE_REGISTER_USER, (req: Request, res: Response) => {
   const authController = new AuthenticationController();
-  return authController.patchRegisterUser(req, res);
+  return authController.patchRegisterUser(
+    req as AppRequest,
+    res as AppResponse,
+  );
 });
 
 // set user type
-router.patch(ROUTE_SET_USER_TYPE, (req: AppRequest, res: AppResponse) => {
-  const authController = new AuthenticationController();
-  return authController.patchSetUserType(req, res);
-});
+router.patch(
+  ROUTE_SET_USER_TYPE,
+  AuthConfig.verifyUser,
+  (req: Request, res: Response) => {
+    const authController = new AuthenticationController();
+    return authController.patchSetUserType(
+      req as AppRequest,
+      res as AppResponse,
+    );
+  },
+);
 
 export default router;

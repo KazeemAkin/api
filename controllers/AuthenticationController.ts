@@ -13,7 +13,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      sendAccessCode.process(body)
+      sendAccessCode.process(body),
     );
   }
 
@@ -24,7 +24,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      verifyAccessCode.process(body)
+      verifyAccessCode.process(body),
     );
   }
 
@@ -35,7 +35,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      registerUser.process(body)
+      registerUser.process(body),
     );
   }
 
@@ -44,9 +44,11 @@ class AuthenticationController extends BaseController {
     const body = req?.body || {};
     const setUserType = new SetUserType();
 
+    body.userId = req?.userId || "";
+
     return AuthenticationController.processRequest(
       res,
-      setUserType.process(body)
+      setUserType.process(body),
     );
   }
 }

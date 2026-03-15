@@ -14,7 +14,7 @@ import {
 import JWTTokenService from "../api-liberaries/services/JWTTokenService";
 import { NextFunction } from "express";
 import { empty } from "../api-liberaries/utilities/utils";
-import BaseExceptions from "../api-liberaries/utilities/BaseExceptions";
+import { BaseController } from "../controllers/BaseController";
 
 interface TokenResult {
   accessToken?: string;
@@ -289,6 +289,12 @@ class AuthConfig {
   // ================= MIDDLEWARE WRAPPERS =================
   // These handle req/res/next for Express use, delegating to pure methods.
 
+  /**
+   * Refresh token middleware. On success, sets new AccessToken header. Returns boolean success.
+   * @param req
+   * @param res
+   * @returns
+   */
   static async refreshToken(
     req: AppRequest,
     res: AppResponse,
@@ -306,6 +312,13 @@ class AuthConfig {
     return false;
   }
 
+  /**
+   * Verify user middleware. On success, sets req.userId and req.userType for downstream use.
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
   static async verifyUser(
     req: AppRequest,
     res: AppResponse,
@@ -315,8 +328,10 @@ class AuthConfig {
       req.headers.authorization || "",
     );
     if (!result.success) {
-      return BaseExceptions.unauthorized(
+      return BaseController.failedResponse(
+        res,
         result.error || "Invalid authentication token",
+        401,
       );
     }
     // Set on req for downstream use
@@ -328,10 +343,16 @@ class AuthConfig {
     res.setHeader(
       "AccessToken",
       req.headers.authorization?.split(" ")[1] || "",
-    ); // Preserve original
+    );
     return next();
   }
 
+  /**
+   * Logout handler. Verifies token and deletes refresh token. Returns boolean success.
+   * @param req
+   * @param res
+   * @returns
+   */
   static async logOut(req: AppRequest, res: AppResponse): Promise<boolean> {
     const verifyResult = await AuthConfig.verifyTokenPure(
       req.headers.authorization || "",
