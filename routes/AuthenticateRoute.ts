@@ -2,7 +2,9 @@ import express, { Router } from "express";
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import AuthenticationController from "../controllers/AuthenticationController";
 import {
+  ROUTE_FORGOT_PASSWORD,
   ROUTE_REGISTER_USER,
+  ROUTE_RESET_PASSWORD,
   ROUTE_SEND_ACCESS_CODE,
   ROUTE_SET_ITEMS_OF_INTEREST,
   ROUTE_SET_USER_TYPE,
@@ -73,6 +75,24 @@ router.patch(
 router.post(ROUTE_SIGN_IN, (req: Request, res: Response) => {
   const authController = new AuthenticationController();
   return authController.postSignIn(req as AppRequest, res as AppResponse);
+});
+
+// forgot password
+router.patch(ROUTE_FORGOT_PASSWORD, (req: Request, res: Response) => {
+  const authController = new AuthenticationController();
+  return authController.patchForgotPassword(
+    req as AppRequest,
+    res as AppResponse,
+  );
+});
+
+// reset password
+router.patch(ROUTE_RESET_PASSWORD, (req: Request, res: Response) => {
+  const authController = new AuthenticationController();
+  return authController.patchResetPassword(
+    req as AppRequest,
+    res as AppResponse,
+  );
 });
 
 export default router;

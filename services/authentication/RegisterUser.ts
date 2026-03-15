@@ -59,9 +59,7 @@ class RegisterUser {
       const phone_number = post?.phone_number || "";
 
       if (password !== confirm_password) {
-        return BaseExceptions.forbidden(
-          "Password and confirm password do not match.",
-        );
+        return BaseExceptions.forbidden("Password mismatch.");
       }
 
       const usersModel = new UsersModel();

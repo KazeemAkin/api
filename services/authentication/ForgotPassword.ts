@@ -1,7 +1,7 @@
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
-import Utilities from "../../api-liberaries/utilities/Utilities";
+import crypto from "crypto";
 import {
   empty,
   isDbObjectValid,
@@ -9,15 +9,16 @@ import {
 } from "../../api-liberaries/utilities/utils";
 
 import UsersModel from "../../models/Users";
+import Utilities from "../../api-liberaries/utilities/Utilities";
 
 // type
 export type SendAccessCodePostType = {
   email: string;
 };
 
-class SendAccessCode {
+class ForgotPassword {
   /**
-   * Send access code on request
+   * Forgot password
    * @param {*} post_data
    * @returns
    */
@@ -31,7 +32,7 @@ class SendAccessCode {
     }
 
     const schema = {
-      email: { type: "email", rules: { minLength: 10, maxLength: 50 } },
+      email: { type: "email" },
     };
     const validated_inputs = sanitizeAndValidateRequest(post, schema);
     if (!empty(validated_inputs) && !empty(validated_inputs.errors)) {
@@ -56,43 +57,20 @@ class SendAccessCode {
     const usersModel = new UsersModel();
 
     // get user registered access code and expiration time
-    let user: DynamicObjectType = await usersModel.getRowByField({
+    const user: DynamicObjectType = await usersModel.getRowByField({
       email,
     });
     if (!isDbObjectValid(user)) {
-      // add user
-      const new_user_payload = {
-        email,
-        restricted: false,
-      };
-      const new_user: boolean = await usersModel.addOne(new_user_payload);
-      if (!new_user) {
-        return BaseExceptions.badRequest("Sorry, failed to process request.");
-      }
-      user = await usersModel.getRowByField({
-        email,
-      });
-      if (!isDbObjectValid(user)) {
-        return BaseExceptions.badRequest("Sorry, failed to process request.");
-      }
+      return BaseExceptions.badRequest("Account not found.");
     }
 
-    const current_time = Utilities.getNow();
-    if (
-      user?.access_code_count >= 9 &&
-      current_time <= user?.access_code_expiration_time
-    ) {
-      return BaseExceptions.unauthorized(
-        "Sorry, you have exceeded the maximum number of access code requests in one(1) hour. Please try again later.",
-      );
-    }
+    const reset_hash = crypto.randomUUID();
+    const reset_hast_expiration_time = Utilities.getExpirationTime(60);
+    // const url = process.env.BASE_URL + '/?reset_hash=' + encodeURIComponent(reset_hash);
 
-    // generate access code
-    const access_code = await Utilities.generateAccessCode();
-    const access_code_expiration_time = Utilities.getExpirationTime(60); // 60 minutes (1 hour)
     const payload = {
-      access_code_expiration_time: access_code_expiration_time,
-      access_code,
+      reset_hash,
+      reset_hast_expiration_time,
     };
 
     //update user
@@ -105,16 +83,17 @@ class SendAccessCode {
     }
 
     // const mail = new MailService();
-    // const send_access_code = await mail.sendAccessCodeEmail({
+    // const send_access_code = await mail.sendResetPasswordEmail({
     //   access_code,
     //   email: user?.email || "",
+    //   url
     // });
     // if (!send_access_code) {
-    //   return BaseExceptions.badRequest("Failed to send access code.");
+    // return BaseExceptions.badRequest("Failed to send resent link.");
     // }
 
     return SuccessResponse.response();
   }
 }
 
-export default SendAccessCode;
+export default ForgotPassword;
