@@ -3,6 +3,7 @@ import RegisterUser from "../services/authentication/RegisterUser";
 import SendAccessCode from "../services/authentication/SendAccessCode";
 import SetItemsOfInterest from "../services/authentication/SetItemsOfInterest";
 import SetUserType from "../services/authentication/SetUserType";
+import SignIn from "../services/authentication/SignIn";
 import VerifyAccessCode from "../services/authentication/VerifyAccessCode";
 import { BaseController } from "./BaseController";
 
@@ -64,6 +65,14 @@ class AuthenticationController extends BaseController {
       res,
       setItemsOfInterest.process(body),
     );
+  }
+
+  // sign in
+  async postSignIn(req: AppRequest, res: AppResponse) {
+    const body = req?.body || {};
+    const signIN = new SignIn();
+
+    return AuthenticationController.processRequest(res, signIN.process(body));
   }
 }
 

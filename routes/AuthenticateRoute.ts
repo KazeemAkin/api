@@ -6,6 +6,7 @@ import {
   ROUTE_SEND_ACCESS_CODE,
   ROUTE_SET_ITEMS_OF_INTEREST,
   ROUTE_SET_USER_TYPE,
+  ROUTE_SIGN_IN,
   ROUTE_VERIFY_ACCESS_CODE,
 } from "../config/api-routes";
 import AuthConfig from "../middlewares/AutConfig";
@@ -67,5 +68,11 @@ router.patch(
     );
   },
 );
+
+// sign in
+router.post(ROUTE_SIGN_IN, (req: Request, res: Response) => {
+  const authController = new AuthenticationController();
+  return authController.postSignIn(req as AppRequest, res as AppResponse);
+});
 
 export default router;
