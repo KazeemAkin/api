@@ -4,6 +4,7 @@ import AuthenticationController from "../controllers/AuthenticationController";
 import {
   ROUTE_REGISTER_USER,
   ROUTE_SEND_ACCESS_CODE,
+  ROUTE_SET_ITEMS_OF_INTEREST,
   ROUTE_SET_USER_TYPE,
   ROUTE_VERIFY_ACCESS_CODE,
 } from "../config/api-routes";
@@ -48,6 +49,19 @@ router.patch(
   (req: Request, res: Response) => {
     const authController = new AuthenticationController();
     return authController.patchSetUserType(
+      req as AppRequest,
+      res as AppResponse,
+    );
+  },
+);
+
+// set items of interest
+router.patch(
+  ROUTE_SET_ITEMS_OF_INTEREST,
+  AuthConfig.verifyUser,
+  (req: Request, res: Response) => {
+    const authController = new AuthenticationController();
+    return authController.patchSetItemsOfInterest(
       req as AppRequest,
       res as AppResponse,
     );
