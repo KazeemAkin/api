@@ -1,7 +1,11 @@
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
+import ForgotPassword from "../services/authentication/ForgotPassword";
 import RegisterUser from "../services/authentication/RegisterUser";
+import ResetPassword from "../services/authentication/ResetPassword";
 import SendAccessCode from "../services/authentication/SendAccessCode";
+import SetItemsOfInterest from "../services/authentication/SetItemsOfInterest";
 import SetUserType from "../services/authentication/SetUserType";
+import SignIn from "../services/authentication/SignIn";
 import VerifyAccessCode from "../services/authentication/VerifyAccessCode";
 import { BaseController } from "./BaseController";
 
@@ -13,7 +17,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      sendAccessCode.process(body)
+      sendAccessCode.process(body),
     );
   }
 
@@ -24,7 +28,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      verifyAccessCode.process(body)
+      verifyAccessCode.process(body),
     );
   }
 
@@ -35,7 +39,7 @@ class AuthenticationController extends BaseController {
 
     return AuthenticationController.processRequest(
       res,
-      registerUser.process(body)
+      registerUser.process(body),
     );
   }
 
@@ -44,9 +48,54 @@ class AuthenticationController extends BaseController {
     const body = req?.body || {};
     const setUserType = new SetUserType();
 
+    body.userId = req?.userId || "";
+
     return AuthenticationController.processRequest(
       res,
-      setUserType.process(body)
+      setUserType.process(body),
+    );
+  }
+
+  // set items of interest
+  async patchSetItemsOfInterest(req: AppRequest, res: AppResponse) {
+    const body = req?.body || {};
+    const setItemsOfInterest = new SetItemsOfInterest();
+
+    body.userId = req?.userId || "";
+
+    return AuthenticationController.processRequest(
+      res,
+      setItemsOfInterest.process(body),
+    );
+  }
+
+  // sign in
+  async postSignIn(req: AppRequest, res: AppResponse) {
+    const body = req?.body || {};
+    const signIN = new SignIn();
+
+    return AuthenticationController.processRequest(res, signIN.process(body));
+  }
+
+  // forgot password
+  async patchForgotPassword(req: AppRequest, res: AppResponse) {
+    const body = req?.body || {};
+    const forgotPassword = new ForgotPassword();
+
+    return AuthenticationController.processRequest(
+      res,
+      forgotPassword.process(body),
+    );
+  }
+
+  // reset password
+  async patchResetPassword(req: AppRequest, res: AppResponse) {
+    const body = req?.body || {};
+    const resetPassword = new ResetPassword();
+
+    return AuthenticationController.processRequest(
+      res,
+      resetPassword.process(body),
     );
   }
 }

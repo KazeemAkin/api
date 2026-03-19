@@ -5,4 +5,4 @@ export const AWS_REGION = process.env.aws_region || "";
 export const AWS_ROUTE = process.env.aws_route || "";
 
 // user Types
-export const USER_TYPES = ["Service Provider", "Client"];
+export const USER_TYPES = ["Seller", "Buyer"];

@@ -1,4 +1,3 @@
-import { USER_TYPES } from "./../../api-liberaries/utilities/constants";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
@@ -10,9 +9,9 @@ import {
 } from "../../api-liberaries/utilities/utils";
 import UsersModel from "../../models/Users";
 
-class SetUserType {
+class SetItemsOfInterest {
   /**
-   * Set user type
+   * Set items of interest
    * @param post_data
    * @returns
    */
@@ -32,7 +31,7 @@ class SetUserType {
       }
 
       const schema = {
-        userType: { type: "array" },
+        selectedItems: { type: "array" },
       };
 
       const validated_inputs = sanitizeAndValidateRequest(post, schema);
@@ -46,7 +45,7 @@ class SetUserType {
         : {};
 
       // assign input values
-      const user_type = sanitized_input?.userType || ["Buyer"];
+      const categories_of_interest = sanitized_input?.selectedItems || [];
 
       const user_id = post_data?.userId || "";
 
@@ -58,12 +57,8 @@ class SetUserType {
       if (!isDbObjectValid(user)) {
         return BaseExceptions.notFound("User not found!");
       }
-      const active_user_type = USER_TYPES.includes("Seller")
-        ? "Seller"
-        : "Buyer";
       const payload: DynamicObjectType = {
-        user_type: user_type,
-        active_user_type,
+        categories_of_interest,
         updated_at: new Date(),
       };
       const updateUser = await usersModel.updateOneRecord(
@@ -76,7 +71,7 @@ class SetUserType {
         );
       }
 
-      return SuccessResponse.jsonResponse({ user_type, active_user_type });
+      return SuccessResponse.jsonResponse({ categories_of_interest });
     } catch (error) {
       console.log(error);
       return BaseExceptions.unauthorized("Something went wrong!");
@@ -84,4 +79,4 @@ class SetUserType {
   }
 }
 
-export default SetUserType;
+export default SetItemsOfInterest;

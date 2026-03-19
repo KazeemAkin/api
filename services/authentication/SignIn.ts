@@ -1,4 +1,4 @@
-import { hash_password } from "../../api-liberaries/services/Encryption";
+import { compare_password } from "../../api-liberaries/services/Encryption";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
@@ -12,11 +12,11 @@ import {
 import AuthConfig from "../../middlewares/AutConfig";
 import UsersModel from "../../models/Users";
 
-class RegisterUser {
+class SignIn {
   /**
-   * Register user
+   * sign in user
    * @param email
-   * @param access_code
+   * @param password
    * @returns
    */
   async process(postData: DynamicObjectType) {
@@ -30,13 +30,8 @@ class RegisterUser {
       }
 
       const schema = {
-        first_name: { type: "string" },
         email: { type: "email" },
-        last_name: { type: "string" },
-        username: { type: "string" },
-        phone_number: { type: "string" },
         password: { type: "string" },
-        confirm_password: { type: "string" },
       };
 
       const validated_inputs = sanitizeAndValidateRequest(post, schema);
@@ -51,16 +46,7 @@ class RegisterUser {
 
       // assign input values
       const email = sanitizedInput?.email || "";
-      const first_name = sanitizedInput?.first_name || "";
-      const last_name = sanitizedInput?.last_name || "";
       const password = sanitizedInput?.password || "";
-      const confirm_password = sanitizedInput?.confirm_password || "";
-      const username = sanitizedInput?.username || "";
-      const phone_number = post?.phone_number || "";
-
-      if (password !== confirm_password) {
-        return BaseExceptions.forbidden("Password mismatch.");
-      }
 
       const usersModel = new UsersModel();
       // check if user exists already - email
@@ -68,39 +54,28 @@ class RegisterUser {
         email,
       });
       if (!isDbObjectValid(user)) {
-        return BaseExceptions.notFound(
-          "User not found! Seems like you did not complete the first step of registration.",
-        );
+        return BaseExceptions.notFound("User not found!");
       }
       // check if user has previously been registered
       const registered = !empty(user.registered) ? user.registered : false;
-      if (registered) {
+      if (!registered) {
         return BaseExceptions.forbidden(
-          `User with email ${email} is already registered.`,
+          `You haven't completed your registration process. Please go back and complete your registration.`,
         );
       }
       // check if user's account has been blocked
       const restricted = user.restricted || false;
       if (restricted) {
-        return SuccessResponse.jsonResponse({ restricted: true });
+        return BaseExceptions.forbidden(
+          "Unfortunately, this account has been blocked.",
+        );
       }
 
-      // encrypt password
-      const encrypted_password = await hash_password(password);
-      if (!encrypted_password) {
-        return BaseExceptions.badRequest("Sorry, failed to process request.");
-      }
+      const password_hash = user?.password || "";
 
-      const payload: DynamicObjectType = {
-        first_name,
-        last_name,
-        phone_number,
-        username,
-        password: encrypted_password,
-        registration_completed: true,
-        registered: true,
-        date_registered: new Date(),
-      };
+      if (!compare_password(password, password_hash)) {
+        return BaseExceptions.forbidden("Wrong credentials.");
+      }
 
       // sign user jwt
       // jwt encoding
@@ -109,7 +84,7 @@ class RegisterUser {
         sub: user._id,
         iat: issued_at,
         email,
-        user_type: isArray(user?.user_types) ? user.user_types : ["Buyer"],
+        user_type: isArray(user?.user_types) ? user.user_types : ["Seller"],
       };
       const jwt = await AuthConfig.signJWTToken(jwt_payload);
       if (!jwt) {
@@ -118,23 +93,25 @@ class RegisterUser {
         );
       }
 
-      const updateUser = await usersModel.updateOneRecord(
-        { _id: user._id },
-        payload,
-      );
-      if (!updateUser) {
-        return BaseExceptions.internalServerError("Failed to register user.");
-      }
+      const {
+        first_name,
+        last_name,
+        username,
+        phone_number,
+        user_type,
+        active_user_type,
+      } = user;
       return SuccessResponse.jsonResponse({
         jwt,
         user: {
           email,
           id: user._id,
-          registered: true,
           first_name,
           last_name,
-          phone_number,
           username,
+          phone_number,
+          user_type,
+          active_user_type,
         },
       });
     } catch (error) {
@@ -144,4 +121,4 @@ class RegisterUser {
   }
 }
 
-export default RegisterUser;
+export default SignIn;
