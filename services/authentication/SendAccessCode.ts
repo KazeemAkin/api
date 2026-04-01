@@ -6,6 +6,7 @@ import {
   empty,
   isDbObjectValid,
   sanitizeAndValidateRequest,
+  verifySchoolEmail,
 } from "../../api-liberaries/utilities/utils";
 
 import UsersModel from "../../models/Users";
@@ -46,7 +47,7 @@ class SendAccessCode {
 
     const email = sanitized_input?.email || "";
     // verify tha email is a valid school email
-    if (!email.endsWith("@northumbria.ac.uk")) {
+    if (!verifySchoolEmail(email)) {
       return BaseExceptions.forbidden(
         "Sorry, only school email addresses are allowed.",
       );

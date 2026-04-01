@@ -1,3 +1,0 @@
-[submodule "src/api-liberaries"]
-	path = src/api-liberaries
-	url = git@github.com:anciemsystechltd/api-libraries.git

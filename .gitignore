@@ -1,3 +1,5 @@
+
+
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
 # Learn more about .gitignore:
@@ -50,11 +52,11 @@ Thumbs.db
 
 *.env
 
-app.js
-server.js
+app.ts
+server.ts
 package.json
 
-ecosystem.config.js
+ecosystem.config.ts
 package-lock.json
 
 .pm2ignore
@@ -65,3 +67,4 @@ config/autoload/*.env
 App/assets/
 launch.json
 .vscode/
+

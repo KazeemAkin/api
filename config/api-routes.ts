@@ -6,3 +6,4 @@ export const ROUTE_SET_ITEMS_OF_INTEREST = "/set-items-of-interest";
 export const ROUTE_SIGN_IN = "/sign-in";
 export const ROUTE_FORGOT_PASSWORD = "/forgot-password";
 export const ROUTE_RESET_PASSWORD = "/reset-password";
+export const ROUTE_GET_USER_DATA = "/user-details/:user_id";
