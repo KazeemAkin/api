@@ -80,7 +80,7 @@ export const isDbObjectValid = (data: any) => {
 
 export const reIndex = (
   array: Array<DynamicObjectType>,
-  key: string = "_id"
+  key: string = "_id",
 ) => {
   const indexed_array: DynamicObjectType = {};
   if ((isArray(array) || isObject(array)) && !empty(array)) {
@@ -101,7 +101,7 @@ export const reIndexedToArray = (reIndexedArray: DynamicObjectType) => {
 
 export function sanitizeAndValidateRequest(
   body: DynamicObjectType,
-  schema: DynamicObjectType
+  schema: DynamicObjectType,
 ) {
   const result: DynamicObjectType = {
     sanitizedValues: {},
@@ -116,7 +116,7 @@ export function sanitizeAndValidateRequest(
   // Helper function to recursively sanitize and validate objects
   function sanitizeObject(
     obj: DynamicObjectType,
-    objSchema: DynamicObjectType
+    objSchema: DynamicObjectType,
   ) {
     const sanitizedObject: DynamicObjectType = {};
     const objectErrors: DynamicObjectType = {};
@@ -136,12 +136,12 @@ export function sanitizeAndValidateRequest(
           }
           if (rules.minLength && sanitizedValue.length < rules.minLength) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be at least ${rules.minLength} characters long.`;
           }
           if (rules.maxLength && sanitizedValue.length > rules.maxLength) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be no more than ${rules.maxLength} characters long.`;
           }
           break;
@@ -153,17 +153,17 @@ export function sanitizeAndValidateRequest(
           }
           if (isNaN(sanitizedValue)) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid number.`;
           }
           if (rules.min && sanitizedValue < rules.min) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be greater than or equal to ${rules.min}.`;
           }
           if (rules.max && sanitizedValue > rules.max) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be less than or equal to ${rules.max}.`;
           }
           break;
@@ -180,7 +180,7 @@ export function sanitizeAndValidateRequest(
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(sanitizedValue)) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid email address.`;
           }
           break;
@@ -193,7 +193,7 @@ export function sanitizeAndValidateRequest(
           }
           if (isNaN(sanitizedValue.getTime())) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid date.`;
           }
           break;
@@ -208,7 +208,7 @@ export function sanitizeAndValidateRequest(
           } catch (e) {
             console.log(e);
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid URL.`;
           }
           break;
@@ -217,7 +217,7 @@ export function sanitizeAndValidateRequest(
           sanitizedValue = String(value).trim();
           if (!validateUUID(sanitizedValue)) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid id.`;
           }
           break;
@@ -228,16 +228,16 @@ export function sanitizeAndValidateRequest(
           }
           if (!Array.isArray(value)) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be an array.`;
           } else {
             sanitizedValue = value.map((item) =>
               rules.itemsType
                 ? sanitizeAndValidateRequest(
                     { item },
-                    { item: rules.itemsType }
+                    { item: rules.itemsType },
                   ).sanitizedValues.item
-                : item
+                : item,
             );
           }
           break;
@@ -248,7 +248,7 @@ export function sanitizeAndValidateRequest(
           }
           if (typeof value !== "object" || Array.isArray(value)) {
             errorMessage = `Field '${puritifyFieldName(
-              field
+              field,
             )}' must be a valid object.`;
           } else {
             const sanitizedSubObject = sanitizeObject(value, rules.schema);
@@ -261,7 +261,7 @@ export function sanitizeAndValidateRequest(
 
         default:
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' has an unsupported type '${type}'.`;
       }
 
@@ -293,12 +293,12 @@ export function sanitizeAndValidateRequest(
         }
         if (rules.minLength && sanitizedValue.length < rules.minLength) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be at least ${rules.minLength} characters long.`;
         }
         if (rules.maxLength && sanitizedValue.length > rules.maxLength) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be no more than ${rules.maxLength} characters long.`;
         }
         break;
@@ -310,17 +310,17 @@ export function sanitizeAndValidateRequest(
         }
         if (isNaN(sanitizedValue)) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid number.`;
         }
         if (rules.min && sanitizedValue < rules.min) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be greater than or equal to ${rules.min}.`;
         }
         if (rules.max && sanitizedValue > rules.max) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be less than or equal to ${rules.max}.`;
         }
         break;
@@ -337,7 +337,7 @@ export function sanitizeAndValidateRequest(
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(sanitizedValue)) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid email address.`;
         }
         break;
@@ -347,7 +347,7 @@ export function sanitizeAndValidateRequest(
         sanitizedValue = new Date(value);
         if (isNaN(sanitizedValue.getTime())) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid date.`;
         }
         break;
@@ -362,7 +362,7 @@ export function sanitizeAndValidateRequest(
         } catch (e) {
           console.log(e);
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid URL.`;
         }
         break;
@@ -374,7 +374,7 @@ export function sanitizeAndValidateRequest(
         }
         if (!validateUUID(sanitizedValue)) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid id.`;
         }
         break;
@@ -382,14 +382,14 @@ export function sanitizeAndValidateRequest(
       case "array":
         if (!Array.isArray(value)) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be an array.`;
         } else {
           sanitizedValue = value.map((item) =>
             rules.itemsType
               ? sanitizeAndValidateRequest({ item }, { item: rules.itemsType })
                   .sanitizedValues.item
-              : item
+              : item,
           );
         }
         break;
@@ -397,7 +397,7 @@ export function sanitizeAndValidateRequest(
       case "object":
         if (typeof value !== "object" || Array.isArray(value)) {
           errorMessage = `Field '${puritifyFieldName(
-            field
+            field,
           )}' must be a valid object.`;
         } else {
           const sanitizedSubObject = sanitizeObject(value, rules.schema);
@@ -410,7 +410,7 @@ export function sanitizeAndValidateRequest(
 
       default:
         errorMessage = `Field '${puritifyFieldName(
-          field
+          field,
         )}' has an unsupported type '${type}'.`;
     }
 
@@ -424,61 +424,6 @@ export function sanitizeAndValidateRequest(
 
   return result;
 }
-
-export const compareTimes = (time1: string, time2: string) => {
-  // Convert the time strings into Date objects for comparison
-  const date1 = convertTo24HourFormat(time1);
-  const date2 = convertTo24HourFormat(time2);
-
-  // Compare the two Date objects
-  if (date1 > date2) {
-    return -1;
-  }
-
-  if (date1 == date2) {
-    return 0;
-  }
-
-  if (date1 < date2) {
-    return 1;
-  }
-
-  return -1;
-};
-
-export const convertTo24HourFormat = (time: string) => {
-  const [timePart, modifier] = time.split(" ");
-  const [_hours, minutes] = timePart.split(":");
-  let hours = _hours;
-
-  if (modifier === "PM" && hours !== "12") {
-    hours = String(parseInt(hours, 10) + 12); // Convert PM hour to 24-hour format
-  } else if (modifier === "AM" && hours === "12") {
-    hours = "0"; // Midnight case
-  }
-
-  return `${hours.padStart(2, "0")}:${minutes}`;
-};
-
-export const findMatchingElements = (
-  array1: Array<string | number | null | undefined>,
-  array2: Array<string | number | null | undefined>
-) => {
-  return array1.filter((item) => array2.includes(item));
-};
-
-export const timeStringToDate = (timeString: string) => {
-  return new Date(`1970-01-01T${convertTo24HourFormat(timeString)}`);
-};
-
-export const convertTo12HourFormat = (time: DynamicObjectType) => {
-  const [hours, minutes] = time.split(":");
-  const hoursInt = parseInt(hours, 10);
-  const modifier = hoursInt >= 12 ? "PM" : "AM";
-  const displayHours = hoursInt % 12 || 12; // Convert '0' hour to '12'
-
-  return `${String(displayHours).padStart(2, "0")}:${minutes} ${modifier}`;
-};
 
 export const sanitizePhoneNumber = (phone: string) => {
   if (empty(phone)) return "";
@@ -499,54 +444,10 @@ export const puritifyFieldName = (field: string) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export const toInternationalFormat = (
-  phoneNumber: string,
-  countryCode: string
-) => {
-  // const phoneUtil = libphonenumber.PhoneNumberUtil.getInstance();
-  try {
-    if (isString(countryCode) && countryCode.includes("+")) {
-      countryCode = countryCode.replace("+", "");
-    }
-
-    if (phoneNumber.charAt(0) === "0") {
-      phoneNumber = phoneNumber.replace(/^0+/, "");
-    }
-
-    // if (countryCode) {
-    const parsedNumber = `${countryCode}${phoneNumber}`;
-    // } else {
-    //   parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber);
-    // }
-
-    // Check if the number is valid
-    // if (!phoneUtil.isValidNumber(parsedNumber)) {
-    //   return { error: "Invalid phone number" };
-    // }
-    if (!isString(parsedNumber)) {
-      return { error: "Invalid phone number" };
-    }
-
-    // Format in E.164 (e.g., +15551234567)
-    // const e164Format = phoneUtil.format(
-    //   parsedNumber,
-    //   libphonenumber.PhoneNumberFormat.E164
-    // );
-
-    // Optional: also get national format or international with spaces
-    // const international = phoneUtil.format(parsedNumber, libphonenumber.PhoneNumberFormat.INTERNATIONAL);
-    // const national = phoneUtil.format(parsedNumber, libphonenumber.PhoneNumberFormat.NATIONAL);
-
-    // return {
-    //   e164,
-    //   international, // e.g., +1 555 123 4567
-    //   national,      // e.g., (555) 123-4567
-    //   countryCode: parsedNumber.getCountryCode(),
-    //   isValid: true
-    // };
-
-    return parsedNumber;
-  } catch (error: unknown) {
-    return { error: error || "Failed to parse number" };
+export const verifySchoolEmail = (email: string) => {
+  if (empty(email) || !isString(email)) return false;
+  if (!email.endsWith("@northumbria.ac.uk")) {
+    return false;
   }
+  return true;
 };

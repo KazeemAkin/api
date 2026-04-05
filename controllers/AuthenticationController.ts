@@ -7,6 +7,7 @@ import SetItemsOfInterest from "../services/authentication/SetItemsOfInterest";
 import SetUserType from "../services/authentication/SetUserType";
 import SignIn from "../services/authentication/SignIn";
 import VerifyAccessCode from "../services/authentication/VerifyAccessCode";
+import GetUserData from "../services/general/GetUserData";
 import { BaseController } from "./BaseController";
 
 class AuthenticationController extends BaseController {
@@ -96,6 +97,17 @@ class AuthenticationController extends BaseController {
     return AuthenticationController.processRequest(
       res,
       resetPassword.process(body),
+    );
+  }
+
+  // get user details
+  async getuserDetails(req: AppRequest, res: AppResponse) {
+    const params = req?.params || {};
+    const getUserData = new GetUserData();
+
+    return AuthenticationController.processRequest(
+      res,
+      getUserData.process(params),
     );
   }
 }

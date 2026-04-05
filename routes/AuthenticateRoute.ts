@@ -3,6 +3,7 @@ import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import AuthenticationController from "../controllers/AuthenticationController";
 import {
   ROUTE_FORGOT_PASSWORD,
+  ROUTE_GET_USER_DATA,
   ROUTE_REGISTER_USER,
   ROUTE_RESET_PASSWORD,
   ROUTE_SEND_ACCESS_CODE,
@@ -93,6 +94,12 @@ router.patch(ROUTE_RESET_PASSWORD, (req: Request, res: Response) => {
     req as AppRequest,
     res as AppResponse,
   );
+});
+
+// get user data
+router.get(ROUTE_GET_USER_DATA, (req: Request, res: Response) => {
+  const authController = new AuthenticationController();
+  return authController.getuserDetails(req as AppRequest, res as AppResponse);
 });
 
 export default router;

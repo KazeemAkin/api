@@ -54,7 +54,6 @@ app.js
 server.js
 package.json
 
-ecosystem.config.js
 package-lock.json
 
 .pm2ignore
@@ -65,3 +64,4 @@ config/autoload/*.env
 App/assets/
 launch.json
 .vscode/
+ecosystem.config.ts

@@ -8,6 +8,7 @@ import {
   isDbObjectValid,
   isObject,
   sanitizeAndValidateRequest,
+  verifySchoolEmail,
 } from "../../api-liberaries/utilities/utils";
 import AuthConfig from "../../middlewares/AutConfig";
 import UsersModel from "../../models/Users";
@@ -47,6 +48,12 @@ class SignIn {
       // assign input values
       const email = sanitizedInput?.email || "";
       const password = sanitizedInput?.password || "";
+
+      if (!verifySchoolEmail(email)) {
+        return BaseExceptions.forbidden(
+          "Sorry, only school email addresses are allowed.",
+        );
+      }
 
       const usersModel = new UsersModel();
       // check if user exists already - email
