@@ -5,10 +5,12 @@ import app from "./app";
 // Routes groups
 import authenticate from "./routes/AuthenticateRoute";
 import index from "./routes/IndexRoute";
+import product from "./routes/ProductRoute";
 
 // Routes
 app.use("/", authenticate);
 app.use("/", index);
+app.use("/", product);
 
 app.use(
   (err: DynamicObjectType, req: Request, res: Response, next: NextFunction) => {

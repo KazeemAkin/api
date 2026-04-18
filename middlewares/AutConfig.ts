@@ -15,6 +15,7 @@ import JWTTokenService from "../api-liberaries/services/JWTTokenService";
 import { NextFunction } from "express";
 import { empty } from "../api-liberaries/utilities/utils";
 import { BaseController } from "../controllers/BaseController";
+import UsersModel from "../models/Users";
 
 interface TokenResult {
   accessToken?: string;
@@ -125,10 +126,7 @@ class AuthConfig {
   }
 
   // Pure logic: Refresh token without HTTP. Returns new token or false.
-  static async refreshTokenPure(
-    authorization: string,
-    userCollection: string,
-  ): Promise<TokenResult> {
+  static async refreshTokenPure(authorization: string): Promise<TokenResult> {
     // Renamed to avoid conflict
     try {
       if (empty(authorization)) {
@@ -153,9 +151,10 @@ class AuthConfig {
         return { success: false, error: "No user ID in token" };
       }
 
-      // Fix: Assume BaseModel is imported; pass collection as param for flexibility
-      const dbModel = new BaseModel(); // Ensure imported
-      const user = await dbModel.getRowByField(userCollection, { _id: userId });
+      const userModel = new UsersModel();
+      const user: DynamicObjectType = await userModel.getRowByField({
+        _id: userId,
+      });
       if (!user) {
         return { success: false, error: "User not found" };
       }
@@ -253,10 +252,7 @@ class AuthConfig {
     } catch (error) {
       console.error("Verify token error:", error);
       // Auto-refresh attempt (pure version)
-      const refreshResult = await AuthConfig.refreshTokenPure(
-        authorization,
-        "users",
-      ); // Default collection; make param if needed
+      const refreshResult = await AuthConfig.refreshTokenPure(authorization);
       if (refreshResult.success) {
         // Decode the original for req.user* (as fallback)
         const fallbackDecoded = jwt.decode(authorization.split(" ")[1]);
@@ -301,7 +297,6 @@ class AuthConfig {
   ): Promise<boolean> {
     const result = await AuthConfig.refreshTokenPure(
       req.headers.authorization || "",
-      "users",
     ); // Pass collection as needed
     if (result.success && result.accessToken) {
       res.setHeader("AccessToken", result.accessToken);
@@ -335,10 +330,10 @@ class AuthConfig {
       );
     }
     // Set on req for downstream use
-    req.userId = result.userId || "";
-    req.userType = result.userType || "";
+    req.user_id = result.userId || "";
+    req.user_type = result.userType || [];
     if (result.decoded) {
-      Object.assign(req, result.decoded); // Merge decoded if needed
+      Object.assign(req, result.decoded);
     }
     res.setHeader(
       "AccessToken",

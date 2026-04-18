@@ -9,7 +9,7 @@ import {
   AWS_SECRET_KEY_ID,
 } from "../utilities/constants";
 
-class AnciemAws {
+class AWSService {
   static getAwsUrl() {
     if (!empty(AWS_BUCKET)) {
       return `https://${AWS_BUCKET}.s3.amazonaws.com`;
@@ -23,7 +23,7 @@ class AnciemAws {
     s3FileToUploadKey: string = "",
     oldS3FileToUploadKey: string = "",
     contentType: string = "image/png",
-    isBufferedBase64: boolean = false
+    isBufferedBase64: boolean = false,
   ) {
     return new Promise((resolve, reject) => {
       if (
@@ -55,14 +55,14 @@ class AnciemAws {
           // get the parsed base64 image buffered format
           bufferedImage = Buffer.from(
             base64Image.replace(/^data:image\/\w+;base64,/, ""),
-            "base64"
+            "base64",
           );
         }
 
         // prepare file
         s3FileToUploadKey = `${s3FileToUploadKey.replace(
           `https://${AWS_BUCKET}.s3.amazonaws.com/`,
-          ""
+          "",
         )}`;
         fileName = s3FileToUploadKey;
 
@@ -88,7 +88,7 @@ class AnciemAws {
                 isString(oldS3FileToUploadKey)
               ) {
                 try {
-                  await AnciemAws.deleteS3File(oldS3FileToUploadKey);
+                  await AWSService.deleteS3File(oldS3FileToUploadKey);
                 } catch (err) {
                   console.log(err);
                 }
@@ -105,7 +105,7 @@ class AnciemAws {
               };
               resolve({ data });
             }
-          }
+          },
         );
       } else {
         reject({ err: "No buffered image data found" });
@@ -130,7 +130,7 @@ class AnciemAws {
         });
         fileToDeleteKey = `${fileToDeleteKey.replace(
           `https://${AWS_BUCKET}.s3.amazonaws.com`,
-          ""
+          "",
         )}`;
 
         const params = {
@@ -145,7 +145,7 @@ class AnciemAws {
             } else {
               resolve({ data });
             }
-          }
+          },
         );
       } else {
         reject({ err: "No required file data found." });
@@ -154,4 +154,4 @@ class AnciemAws {
   }
 }
 
-export default AnciemAws;
+export default AWSService;
