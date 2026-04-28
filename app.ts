@@ -28,7 +28,7 @@ app.use(
     },
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "AccessToken"],
-  })
+  }),
 );
 
 // Body Parser middleware
