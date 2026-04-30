@@ -49,7 +49,7 @@ class AuthenticationController extends BaseController {
     const body = req?.body || {};
     const setUserType = new SetUserType();
 
-    body.userId = req?.userId || "";
+    body.userId = req?.user_id || "";
 
     return AuthenticationController.processRequest(
       res,
@@ -62,7 +62,7 @@ class AuthenticationController extends BaseController {
     const body = req?.body || {};
     const setItemsOfInterest = new SetItemsOfInterest();
 
-    body.userId = req?.userId || "";
+    body.userId = req?.user_id || "";
 
     return AuthenticationController.processRequest(
       res,

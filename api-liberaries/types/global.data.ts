@@ -19,8 +19,8 @@ export type AppResponse =
 export type AppRequest =
   | DynamicObjectType
   | (Request & {
-      userId: string | DynamicObjectType;
-      userType: string | DynamicObjectType;
+      user_id: string | DynamicObjectType;
+      user_type: string | DynamicObjectType;
     });
 
 export type CenterPointType = {
