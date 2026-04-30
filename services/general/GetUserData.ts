@@ -41,12 +41,6 @@ class GetUserData {
       }
 
       // check if user's account has been blocked
-      const registered = user.registered || false;
-      if (registered) {
-        return SuccessResponse.jsonResponse({ registered: true });
-      }
-
-      // check if user's account has been blocked
       const restricted = user.restricted || false;
       if (restricted) {
         return SuccessResponse.jsonResponse({ restricted: true });
