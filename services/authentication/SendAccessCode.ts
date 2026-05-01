@@ -1,3 +1,4 @@
+import MailService from "../../api-liberaries/services/Mail";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import BaseExceptions from "../../api-liberaries/utilities/BaseExceptions";
 import SuccessResponse from "../../api-liberaries/utilities/SuccessResponse";
@@ -105,14 +106,14 @@ class SendAccessCode {
       return BaseExceptions.internalServerError("Failed to send access code.");
     }
 
-    // const mail = new MailService();
-    // const send_access_code = await mail.sendAccessCodeEmail({
-    //   access_code,
-    //   email: user?.email || "",
-    // });
-    // if (!send_access_code) {
-    //   return BaseExceptions.badRequest("Failed to send access code.");
-    // }
+    const mail = new MailService();
+    const send_access_code = await mail.sendAccessCodeEmail({
+      access_code,
+      email: user?.email || "",
+    });
+    if (!send_access_code) {
+      return BaseExceptions.badRequest("Failed to send access code.");
+    }
 
     return SuccessResponse.response();
   }

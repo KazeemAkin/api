@@ -54,6 +54,9 @@ class GetUserData {
         user_type,
         active_user_type,
         email,
+        school,
+        dorm,
+        year
       } = user;
       return SuccessResponse.jsonResponse({
         email,
@@ -64,6 +67,9 @@ class GetUserData {
         phone_number,
         user_type,
         active_user_type,
+        school,
+        dorm,
+        year
       });
     } catch (error) {
       console.log(error);

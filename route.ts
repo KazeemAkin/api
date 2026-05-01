@@ -6,11 +6,13 @@ import app from "./app";
 import authenticate from "./routes/AuthenticateRoute";
 import index from "./routes/IndexRoute";
 import product from "./routes/ProductRoute";
+import user from "./routes/UserRoute";
 
 // Routes
 app.use("/", authenticate);
 app.use("/", index);
 app.use("/", product);
+app.use("/", user);
 
 app.use(
   (err: DynamicObjectType, req: Request, res: Response, next: NextFunction) => {

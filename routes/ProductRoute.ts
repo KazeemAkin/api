@@ -2,17 +2,58 @@ import express, { Router } from "express";
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import ProductController from "../controllers/ProductController";
 import AuthConfig from "../middlewares/AutConfig";
+import { ROUTE_PRODUCT, ROUTE_PRODUCT_ADD, ROUTE_PRODUCT_DELETE, ROUTE_PRODUCT_LISTINGS, ROUTE_PRODUCT_UPDATE } from "../config/api-routes";
 
 //middlewares
 const router: Router = express.Router();
 
 // add product route
 router.post(
-  "/product/add",
+  ROUTE_PRODUCT_ADD,
   AuthConfig.verifyUser,
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.PostAddProduct(req, res);
+  },
+);
+
+// get user products 
+router.get(
+  ROUTE_PRODUCT_LISTINGS,
+  AuthConfig.verifyUser,
+  (req: AppRequest, res: AppResponse) => {
+    const productController = new ProductController();
+    return productController.getUserProducts(req, res);
+  },
+);
+
+// get product details
+router.get(
+  ROUTE_PRODUCT,
+  AuthConfig.verifyUser,
+  (req: AppRequest, res: AppResponse) => {
+    const productController = new ProductController();
+    return productController.getProductDetails(req, res);
+  },
+);
+
+// update product details
+router.patch(
+  ROUTE_PRODUCT_UPDATE,
+  AuthConfig.verifyUser,
+  (req: AppRequest, res: AppResponse) => {
+    const productController = new ProductController();
+    return productController.updateProductDetails(req, res);
+  },
+);
+
+// delete product
+router.delete(
+  ROUTE_PRODUCT_DELETE,
+  AuthConfig.verifyUser,
+  (req: AppRequest, res: AppResponse) => {
+    const productController = new ProductController();
+    return productController.deleteProduct(req, res);
   },
 );
 
