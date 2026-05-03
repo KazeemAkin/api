@@ -9,84 +9,90 @@ import {
   isString,
   isUndefined,
 } from "../api-liberaries/utilities/utils";
-import { Document, Filter, OptionalId } from "mongodb";
+import { Db, Document, Filter, OptionalId } from "mongodb";
 
 class BaseModel {
-  private is_db_established: boolean = false;
-  private last_connected_db: string | null = "";
   private collection_name: string = "";
-  private default_database: string | null | undefined = process.env.DB_NAME;
+  private default_database: string | undefined = process.env.DB_NAME;
+  private is_db_connection_established: boolean = false;
 
   /**
    * handler for db
    */
-  db: string | undefined = "";
+  db: string = "";
   db_name: string | undefined = "";
-  constructor(collection_name: string = "", db = process.env.DB_NAME) {
-    if (this.is_db_established === true) {
-      if (!empty(db)) {
-        this.db_name = db;
-      } else if (db === null) {
-        db = process.env.DB_NAME;
-      }
-
-      if (!empty(collection_name) && isString(collection_name)) {
-        this.collection_name = collection_name;
-      }
-
-      const connected_db = dbo.getConnectedDBName();
-      const last_connected_db = !empty(connected_db)
-        ? connected_db
-        : this.last_connected_db;
-      if (!empty(this.db_name) && this.db_name !== last_connected_db) {
-        this.DBConnection();
-      }
-
-      return this;
-    }
+  _dbObject: Db | null = null;
+  
+  constructor(collection_name: string, dbParam: string | null = null) {
+    let db = dbParam;
     (async () => {
       try {
-        if (db === null && !isUndefined(process.env.DB_NAME)) {
-          db = process.env.DB_NAME;
+        if (db === null && !isUndefined(this.default_database) && this.default_database) {
+          db = this.default_database;
         }
-        await this._connect(collection_name, db);
+        await this.connect(collection_name, db);
         return this;
-      } catch (error) {
-        console.log(error);
+      } catch (e) {
+        console.error(e);
       }
+      return this;
     })();
     return this;
   }
 
-  DBConnection() {
-    if (!empty(process.env.DB_NAME)) {
-      dbo.useDB(process.env.DB_NAME);
-    }
-    const db = dbo.db();
-    return db;
-  }
-
-  async _connect(collection_name: string, db: string | undefined) {
-    if (empty(db) && !isUndefined(process.env.DB_NAME)) {
-      db = process.env.DB_NAME;
+  async connect(initialize: string, dbParam: string | null = null) {
+    let db = dbParam;
+    if (empty(db) && !isUndefined(this.default_database)) {
+      db = this.default_database as string;
     }
     if (empty(db)) {
-      db = String(this.default_database);
+      db = this.default_database as string;
     }
 
     if (isString(db)) {
-      this.db_name = this.last_connected_db = db;
+      this.db_name = db;
     }
-    if (isString(collection_name)) {
-      this.collection_name = collection_name;
+    if (isString(initialize)) {
+      this.collection_name = initialize;
     }
-    const dBConnected = await dbo.connect(db);
-    if (dBConnected) {
-      this.is_db_established = true;
-      console.log("DB connection established");
+    const dbConnected = await dbo.connect(db as string);
+    if (dbConnected) {
+      this.is_db_connection_established = true;
+      this._db = dbConnected;
       return true;
-    } else {
-      throw new Error("Unable to establish db connection");
+    }
+    throw new Error('Unable to establish db connection');
+  }
+
+  set _db(idb: Db) {
+    if (idb) {
+      this._dbObject = idb;
+    }
+  }
+
+  get _db() {
+    return this._dbObject as Db;
+  }
+
+  static getConnectedDBName() {
+    const connected_db_name = dbo.getConnectedDBName();
+    const last_connected_db = !empty(connected_db_name)
+      ? connected_db_name
+      : null;
+    return last_connected_db;
+  }
+
+  checkAndSwitchDB() {
+    try {
+      const connected_db = BaseModel.getConnectedDBName();
+      if (this.db_name && connected_db && this.db_name !== connected_db) {
+        this._db = dbo.useDB(this.db_name) as Db;
+      }
+      if (!this._db) {
+        this._db = dbo.db() as Db;
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -100,7 +106,11 @@ class BaseModel {
     projection: DynamicObjectType = {}
   ) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         ?.findOne(operation, projection);
 
@@ -122,7 +132,11 @@ class BaseModel {
    */
   async getDistinctRecord(value: string) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         .distinct(value);
 
@@ -139,7 +153,11 @@ class BaseModel {
 
   async aggregateFind(operation: Document[]) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         .aggregate(operation);
 
@@ -161,16 +179,20 @@ class BaseModel {
    */
   async getAllRows(
     operation: DynamicObjectType = {},
-    sort: DynamicObjectType = {},
+    sort: DynamicObjectType  = {},
     limit: number | string = 0,
     skip: number = 0,
     projection: DynamicObjectType = {}
   ) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
       // Check if a custom limit is provided and is a positive integer
       const limitValue: number = parseInt(String(limit), 10) || 10000;
-      const result = await this.DBConnection()
-        ?.collection(this.collection_name)
+      const result = await this._db
+        .collection(this.collection_name)
         .find(operation)
         .project(projection)
         .skip(skip)
@@ -194,7 +216,11 @@ class BaseModel {
    */
   async getCount(operation: DynamicObjectType = {}) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         .countDocuments(operation);
       if (!result) {
@@ -215,13 +241,17 @@ class BaseModel {
    */
   async addOne(data: DynamicObjectType) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
       //generate unique Id
       data._id = crypto.randomUUID();
       if (!validate(data._id)) {
         return false;
       }
       data.dateCreated = new Date();
-      const result = await this.DBConnection()
+      const result = await this._db
         ?.collection(this.collection_name)
         .insertOne(data);
       if (!result) {
@@ -242,7 +272,11 @@ class BaseModel {
    */
   async addMany(documents: readonly OptionalId<Document>[]) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         .insertMany(documents);
       if (!result) {
@@ -264,9 +298,13 @@ class BaseModel {
    */
   async updateMany(filter: DynamicObjectType, data: Document) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
       const updateData: DynamicObjectType = { $set: data };
 
-      const result = await this.DBConnection()
+      const result = await this._db
         ?.collection(this.collection_name)
         .updateMany(filter, updateData);
       if (!result) {
@@ -292,6 +330,10 @@ class BaseModel {
     changeSet = false
   ) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
       // prepare update
       payload.lastUpdated = new Date();
       let update = {};
@@ -301,7 +343,7 @@ class BaseModel {
         update = { $set: payload };
       }
       // update payload
-      const result = await this.DBConnection()
+      const result = await this._db
         ?.collection(this.collection_name)
         .updateOne(conditions, update);
 
@@ -323,13 +365,17 @@ class BaseModel {
    */
   async updateRecords(update_obj: DynamicObjectType, where: Filter<Document>) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
       // prepare update
       update_obj.lastUpdated = new Date();
       const update = {
         $set: update_obj,
       };
       // update data
-      const result = await this.DBConnection()
+      const result = await this._db
         ?.collection(this.collection_name)
         .updateMany(where, update);
 
@@ -350,7 +396,11 @@ class BaseModel {
    */
   async deleteOne(conditions: DynamicObjectType = {}) {
     try {
-      const result = await this.DBConnection()
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+
+      const result = await this._db
         ?.collection(this.collection_name)
         .deleteOne(conditions);
       if (!result) {
@@ -371,10 +421,14 @@ class BaseModel {
    */
   async deleteMany(conditions: DynamicObjectType = {}) {
     try {
+      if (!this._db) {
+        this.checkAndSwitchDB();
+      }
+      
       if (!isObject(conditions)) {
         return false;
       }
-      const result = await this.DBConnection()
+      const result = await this._db
         ?.collection(this.collection_name)
         .deleteMany(conditions);
       if (!result) {

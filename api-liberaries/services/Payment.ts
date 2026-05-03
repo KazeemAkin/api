@@ -1,57 +1,19 @@
-import { DynamicObjectType } from "../types/global.data";
-import { isDbObjectValid } from "../utilities/utils";
+import Stripe from 'stripe';
 
-class PaymentServices {
-  /**
-   * verify portal payment services
-   * @param {*} user_id
-   * @returns
-   */
-  static async verifyPayment(
-    userId = "",
-    termId = "",
-    sessionId = "",
-    schoolId = "",
-    paymentType = "",
-    paymentStatus = "",
-  ) {
-    try {
-      if (
-        empty(userId) ||
-        empty(termId) ||
-        empty(sessionId) ||
-        empty(schoolId) ||
-        empty(paymentType)
-      ) {
-        return false;
-      }
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-04-22.dahlia',
+});
 
-      const conditions: DynamicObjectType = {
-        type: paymentType,
-        userId,
-        termId,
-        sessionId,
-        schoolId,
-      };
-      if (!empty(paymentStatus)) {
-        conditions.status = paymentStatus;
-      }
+export const createPaymentIntent = async (amount: number, currency = 'usd') => {
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(amount * 100),
+    currency,
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
 
-      const dbModel = new BaseModel();
-      const verifyPayment = await dbModel.getRowByField(
-        "paymentHistory",
-        conditions,
-      );
-      if (!isDbObjectValid(verifyPayment)) {
-        return false;
-      }
+  return paymentIntent;
+};
 
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }
-}
-
-module.exports = PaymentServices;
+export default stripe;

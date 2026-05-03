@@ -14,7 +14,17 @@ export const ROUTE_PRODUCT_UPDATE = "/product/update";
 export const ROUTE_PRODUCT_DELETE = "/product/delete/:product_id";
 export const ROUTE_PRODUCT_LISTINGS = "/products";
 export const ROUTE_PRODUCT = "/product/:product_id";
+export const ROUTE_PRODUCTS_USER = "/user/products";
 export const ROUTE_PRODUCT_RATE = "/product/rate/:product_id";
+
+// cart and checkout
+export const ROUTE_PRODUCT_ADD_TO_CART = "/cart/add";
+export const ROUTE_PRODUCT_IN_CART = "/product/:product_id/in-cart";
+export const ROUTE_PRODUCTS_NUMBER_IN_CART = "/cart/products-count";
+export const ROUTE_PRODUCTS_IN_CART = "/cart/products";
+
+// payment 
+export const ROUTE_RECORD_TRANSACTION = "/transaction/record"
 
 // chat
 export const ROUTE_CHAT_HISTORY = "/chat/history";
@@ -22,3 +32,4 @@ export const ROUTE_CHAT_SEND = "/chat/send";
 
 // user
 export const ROUTE_USER_PROFILE_EDIT = "/profile/update";
+export const ROUTE_USER_PROFILE_AVATAR_EDIT = "/profile/avatar/update";

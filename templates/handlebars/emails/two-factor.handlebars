@@ -32,24 +32,13 @@
                         <strong>Single Use Login Access Code</strong>
                       </div>
                       <div style="line-height:30px;">&nbsp;</div>
-                      <div><strong>Hi {{first_name}},</strong></div>
+                      <div><strong>Hi {{payload.first_name}},</strong></div>
                       <div style="line-height:20px;">&nbsp;</div>
-                      <div>You have requested access code recovery.</div>
-
-                      <div style="line-height:30px;">&nbsp;</div>
-                      <div style="line-height: 1.5;">Here are your login
-                        credentials:</div>
+                      <div>You have requested an access code:</div>
                       <div style="line-height: 1.5;"><strong
-                        >{{access_code}}</strong></div>
+                        >{{payload.access_code}}</strong></div>
 
                       <div style="line-height:30px;">&nbsp;</div>
-                      <div>
-                        <a
-                          href="{{verify_access_code_url}}"
-                          style="color: inherit;"
-                        ><strong>Click here</strong></a>
-                        to complete login process
-                      </div>
                     </div>
                   </div>
                 </div>

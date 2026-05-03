@@ -23,6 +23,16 @@ class ProductController extends BaseController {
     );
   }
 
+  // get all products 
+  async getAllProducts(req: AppRequest, res: AppResponse) {
+    const productService = new ProductService();
+    const { query } = req;
+    return ProductController.processRequest(
+      res,
+      productService.getProducts(query),
+    );
+  }
+
   // get product details 
   async getProductDetails(req: AppRequest, res: AppResponse) {
     const productService = new ProductService();

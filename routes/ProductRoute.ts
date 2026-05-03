@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import ProductController from "../controllers/ProductController";
 import AuthConfig from "../middlewares/AutConfig";
-import { ROUTE_PRODUCT, ROUTE_PRODUCT_ADD, ROUTE_PRODUCT_DELETE, ROUTE_PRODUCT_LISTINGS, ROUTE_PRODUCT_UPDATE } from "../config/api-routes";
+import { ROUTE_PRODUCT, ROUTE_PRODUCT_ADD, ROUTE_PRODUCT_DELETE, ROUTE_PRODUCT_LISTINGS, ROUTE_PRODUCT_UPDATE, ROUTE_PRODUCTS_USER } from "../config/api-routes";
 
 //middlewares
 const router: Router = express.Router();
@@ -19,11 +19,20 @@ router.post(
 
 // get user products 
 router.get(
-  ROUTE_PRODUCT_LISTINGS,
+  ROUTE_PRODUCTS_USER,
   AuthConfig.verifyUser,
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.getUserProducts(req, res);
+  },
+);
+
+// get products 
+router.get(
+  ROUTE_PRODUCT_LISTINGS,
+  (req: AppRequest, res: AppResponse) => {
+    const productController = new ProductController();
+    return productController.getAllProducts(req, res);
   },
 );
 

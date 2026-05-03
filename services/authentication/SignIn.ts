@@ -107,6 +107,9 @@ class SignIn {
         phone_number,
         user_type,
         active_user_type,
+        school, 
+        dorm,
+        year
       } = user;
       return SuccessResponse.jsonResponse({
         jwt,
@@ -119,6 +122,9 @@ class SignIn {
           phone_number,
           user_type,
           active_user_type,
+          school,
+          dorm,
+          year
         },
       });
     } catch (error) {

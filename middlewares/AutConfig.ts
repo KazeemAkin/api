@@ -204,7 +204,7 @@ class AuthConfig {
       const accessToken = jwt.sign(
         jwtPayload,
         privateKey,
-        AuthConfig.jwtSigninOptions,
+        { ...AuthConfig.jwtSigninOptions, expiresIn: '30d' },
       );
       if (!accessToken) {
         return { success: false, error: "Failed to sign new access token" };

@@ -48,11 +48,11 @@ class SendAccessCode {
 
     const email = sanitized_input?.email || "";
     // verify tha email is a valid school email
-    if (!verifySchoolEmail(email)) {
-      return BaseExceptions.forbidden(
-        "Sorry, only school email addresses are allowed.",
-      );
-    }
+    // if (!verifySchoolEmail(email)) {
+    //   return BaseExceptions.forbidden(
+    //     "Sorry, only school email addresses are allowed.",
+    //   );
+    // }
 
     // db model
     const usersModel = new UsersModel();
@@ -110,6 +110,7 @@ class SendAccessCode {
     const send_access_code = await mail.sendAccessCodeEmail({
       access_code,
       email: user?.email || "",
+      first_name: user?.first_name
     });
     if (!send_access_code) {
       return BaseExceptions.badRequest("Failed to send access code.");

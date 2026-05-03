@@ -12,6 +12,16 @@ class UserController extends BaseController {
       userService.updateUserProfile(user_id, body),
     );
   }
+
+  // upload user avatar 
+  async uploadAvatar(req: AppRequest, res: AppResponse) {
+    const userService = new UserService();
+    const { user_id, body } = req;
+    return UserController.processRequest(
+      res,
+      userService.uploadAvatar(user_id, body),
+    );
+  }
 }
 
 export default UserController;

@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import BaseModel from "./models/BaseModel";
+import InitializeDB from "./services/db/InitializeDB";
 
 dotenv.config();
 
@@ -36,8 +36,6 @@ app.use(bodyParser.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 
 // Establishing a DB Connection
-(async () => {
-  new BaseModel();
-})();
+InitializeDB.initializeDB();
 
 export default app;

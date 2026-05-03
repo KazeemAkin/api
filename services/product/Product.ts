@@ -12,6 +12,7 @@ import {
   sanitizeAndValidateRequest,
 } from "../../api-liberaries/utilities/utils";
 import ProductsModel from "../../models/Products";
+import UsersModel from "../../models/Users";
 
 class ProductService {
   /**
@@ -160,6 +161,38 @@ class ProductService {
     }
   }
 
+
+  /**
+   * Get user Products
+   * @param user_id 
+   * @param query 
+   * @returns 
+   */
+  async getProducts(query: DynamicObjectType) {
+    try {
+      //get request body
+      const query_obj = !empty(query) ? query : {};
+      const search_value: DynamicObjectType = {};
+      if (!empty(query_obj?.filter) && query_obj.filter != 'all') {
+        search_value.status = query_obj.filter || 'Unlisted';
+      }
+      if (!empty(query_obj?.category) && query_obj.category != 'all') {
+        search_value.category = query_obj.category || '';
+      }
+
+      const productsModel = new ProductsModel();
+      const products = await productsModel.getAllRows({ ...search_value }, {}, query_obj.limit || 10);
+      if (!isArray(products)) {
+        return BaseExceptions.notFound("Failed to fetch products.");
+      }
+
+      return SuccessResponse.jsonResponse({ products })
+    } catch (error) {
+      console.error(error);
+      return BaseExceptions.internalServerError("Internal server error");
+    }
+  }
+
   /**
    * Get product details
    * @param params 
@@ -190,9 +223,16 @@ class ProductService {
       const product_id = sanitizedInput?.product_id || '';
 
       const productsModel = new ProductsModel();
-      const product_details = await productsModel.getRowByField({ _id: product_id });
+      const product_details: DynamicObjectType = await productsModel.getRowByField({ _id: product_id });
       if (!isDbObjectValid(product_details)) {
         return BaseExceptions.notFound("Failed to fetch product details.");
+      }
+      const userModel = new UsersModel();
+      const get_user: DynamicObjectType = await userModel.getRowByField({ _id: product_details?.seller_id });
+      if (isDbObjectValid(get_user)) {
+        product_details.user_details = {
+          dorm: get_user?.dorm || ''
+        }
       }
 
       return SuccessResponse.jsonResponse({ product_details });

@@ -27,7 +27,7 @@ class MailService {
       const mg = mailgun.client({
         username: "api",
         key: process.env.MAILGUN_API_KEY || "",
-        url: process.env.MAILGUN_EU || "",
+        // url: process.env.MAILGUN_EU || "",
       });
 
       // prepare mail parameters
@@ -52,7 +52,7 @@ class MailService {
       const sender_email = !empty(payload.sender_email)
         ? payload.sender_email
         : process.env.MAILGUN_FROM_EMAIL;
-      const sender_email_template = `HANDIVICE <${sender_email}>`;
+      const sender_email_template = `Student E-commerce <${sender_email}>`;
 
       const mail_message: MailgunMessageData = {
         from: sender_email_template,
@@ -107,7 +107,7 @@ class MailService {
       payload.subject = "Access Code";
 
       const file_path =
-        "../../templates/handlebars/emails/AccessCode.handlebars";
+        "../../templates/handlebars/emails/two-factor.handlebars";
 
       const mailService = new MailService();
       const sendMail = await mailService.sendMail(payload, file_path);
