@@ -78,7 +78,7 @@ const connect = async (
         maxPoolSize: validPoolSize,
         minPoolSize: 5,
         maxIdleTimeMS: 120000,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 24000,
         socketTimeoutMS: 45000,
       };
 

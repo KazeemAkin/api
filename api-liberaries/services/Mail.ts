@@ -27,7 +27,7 @@ class MailService {
       const mg = mailgun.client({
         username: "api",
         key: process.env.MAILGUN_API_KEY || "",
-        // url: process.env.MAILGUN_EU || "",
+        url: process.env.MAILGUN_EU || "",
       });
 
       // prepare mail parameters
