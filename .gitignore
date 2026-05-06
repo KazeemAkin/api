@@ -54,7 +54,6 @@ Thumbs.db
 
 app.ts
 server.ts
-package.json
 
 ecosystem.config.ts
 package-lock.json
