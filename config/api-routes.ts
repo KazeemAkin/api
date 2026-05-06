@@ -24,7 +24,8 @@ export const ROUTE_PRODUCTS_NUMBER_IN_CART = "/cart/products-count";
 export const ROUTE_PRODUCTS_IN_CART = "/cart/products";
 
 // payment 
-export const ROUTE_RECORD_TRANSACTION = "/transaction/record"
+export const ROUTE_RECORD_TRANSACTION = "/transaction/record";
+export const ROUTE_PAYMENT_PRODUCT = "/payment/product";
 
 // chat
 export const ROUTE_CHAT_HISTORY = "/chat/history";

@@ -60,6 +60,7 @@ class JWTTokenService {
         return false;
       }
       const jwtTokenModel = new JWTTokenModel();
+      await jwtTokenModel.deleteOne({ userId: payload?.userId });
       const refreshToken = await jwtTokenModel.addOne(payload);
       if (!refreshToken) {
         return false;

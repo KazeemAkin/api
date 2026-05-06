@@ -4,17 +4,17 @@ import app from "./app";
 
 // Routes groups
 import authenticate from "./routes/AuthenticateRoute";
-import index from "./routes/IndexRoute";
 import product from "./routes/ProductRoute";
 import user from "./routes/UserRoute";
 import cart from "./routes/CartRoute";
+import payment from "./routes/PaymenntRoute";
 
 // Routes
 app.use("/", authenticate);
-app.use("/", index);
 app.use("/", product);
 app.use("/", user);
 app.use("/", cart);
+app.use("/", payment);
 
 app.use(
   (err: DynamicObjectType, req: Request, res: Response, next: NextFunction) => {

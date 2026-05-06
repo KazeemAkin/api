@@ -39,7 +39,6 @@ router.get(
 // get product details
 router.get(
   ROUTE_PRODUCT,
-  AuthConfig.verifyUser,
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.getProductDetails(req, res);

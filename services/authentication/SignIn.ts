@@ -86,7 +86,7 @@ class SignIn {
 
       // sign user jwt
       // jwt encoding
-      const issued_at = Math.floor(Date.now() / 1000);
+      const issued_at = new Date().getTime();
       const jwt_payload = {
         sub: user._id,
         iat: issued_at,

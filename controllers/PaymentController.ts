@@ -4,12 +4,12 @@ import { BaseController } from "./BaseController";
 
 class PaymentController extends BaseController {
   // Make Payment
-  async PostMakePayment(req: AppRequest, res: AppResponse) {
+  async postMakePaymentCharge(req: AppRequest, res: AppResponse) {
     const paymentService = new PaymentService();
     const { user_id, body } = req;
     return PaymentController.processRequest(
       res,
-      paymentService.recordTransaction(user_id, body),
+      paymentService.postMakePaymentCharge(user_id, body),
     );
   }
 }

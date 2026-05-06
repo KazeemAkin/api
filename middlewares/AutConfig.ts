@@ -104,7 +104,7 @@ class AuthConfig {
       }
 
       const refreshToken = crypto.randomUUID();
-      const timeToLive = new Date().getTime() + 12 * 60 * 60 * 1000; // 12 hours
+      const timeToLive = new Date().getTime() + 24 * 60 * 60 * 1000; // 12 hours
       const payload = {
         tokenId: refreshToken,
         timestamp: timeToLive,
@@ -176,7 +176,7 @@ class AuthConfig {
       }
 
       // Extend to 24 hours
-      const newTimestamp = now + 24 * 60 * 60 * 1000;
+      const newTimestamp = now + (24 * 60 * 60 * 1000);
       refreshTokenData.timestamp = newTimestamp;
       const tokenId = refreshTokenData.tokenId || "";
       const updateRefreshToken = await jwtTokenService.updateToken(
@@ -325,7 +325,7 @@ class AuthConfig {
     if (!result.success) {
       return BaseController.failedResponse(
         res,
-        result.error || "Invalid authentication token",
+        result.error || "Invalid authentication token1",
         401,
       );
     }
