@@ -11,7 +11,7 @@
     "start-live-and-build": "npm run build-and-copy && npm run live",
     "dev": "env-cmd -f ./.env nodemon --exec ts-node --files ./server.ts",
     "lint": "eslint . --ext .ts,.tsx",
-    "copy-assets": "copyfiles private.key dist && copyfiles public.key dist && copyfiles -u 1 src/templates/handlebars/emails/**/* dist",
+    "copy-assets": "copyfiles private.key dist && copyfiles public.key dist && copyfiles -u 1 templates/handlebars/emails/**/* dist",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "keywords": [],
