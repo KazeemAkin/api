@@ -67,7 +67,6 @@ class ForgotPassword {
 
     const reset_hash = crypto.randomUUID();
     const reset_hast_expiration_time = Utilities.getExpirationTime(60);
-    // const url = process.env.BASE_URL + '/?reset_hash=' + encodeURIComponent(reset_hash);
 
     const payload = {
       reset_hash,
@@ -83,17 +82,16 @@ class ForgotPassword {
       return BaseExceptions.internalServerError("Failed to send access code.");
     }
 
-    
-    // const mail = new MailService();
-    // const reset_link = `${process.env.SITE_URL}/reset-password?reset-token=`;
-    // const send_access_code = await mail.sendForgotPasswordEmail({
-    //   reset_link,
-    //   email: user?.email || "",
-    //   first_name: user?.first_name
-    // });
-    // if (!send_access_code) {
-    //   return BaseExceptions.badRequest("Failed to send access code.");
-    // }
+    const mail = new MailService();
+    const reset_password_link = `${process.env.SITE_URL}/reset-password?reset-token=${encodeURIComponent(reset_hash)}`;
+    const send_access_code = await mail.sendForgotPasswordEmail({
+      reset_password_link,
+      email: user?.email || "",
+      first_name: user?.first_name || ""
+    });
+    if (!send_access_code) {
+      return BaseExceptions.badRequest("Failed to send access code.");
+    }
 
     return SuccessResponse.response();
   }

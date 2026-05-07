@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import AuthConfig from "../middlewares/AutConfig";
-import { ROUTE_PRODUCT_ADD_TO_CART, ROUTE_PRODUCT_IN_CART, ROUTE_PRODUCTS_IN_CART, ROUTE_PRODUCTS_NUMBER_IN_CART } from "../config/api-routes";
+import { ROUTE_PRODUCT_ADD_TO_CART, ROUTE_PRODUCT_IN_CART, ROUTE_PRODUCTS_IN_CART, ROUTE_PRODUCTS_IN_CART_DELETE, ROUTE_PRODUCTS_NUMBER_IN_CART } from "../config/api-routes";
 import CartController from "../controllers/CartController";
 
 //middlewares
@@ -44,6 +44,16 @@ router.get(
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.getProductsInCart(req, res);
+  },
+);
+
+// delete cart 
+router.delete(
+  ROUTE_PRODUCTS_IN_CART_DELETE,
+  AuthConfig.verifyUser,
+  (req: AppRequest, res: AppResponse) => {
+    const cartController = new CartController();
+    return cartController.deleteItemInCart(req, res);
   },
 );
 

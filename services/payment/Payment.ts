@@ -6,6 +6,7 @@ import UsersModel from "../../models/Users";
 import { DynamicObjectType } from "../../api-liberaries/types/global.data";
 import ProductsModel from "../../models/Products";
 import TransactionsModel from "../../models/TransactionsModel";
+import CartModel from "../../models/CartModel";
 
 class PaymentService {
 
@@ -74,6 +75,13 @@ class PaymentService {
       if (!record_transaction) {
         return BaseExceptions.badRequest("Failed to record transaction.");
       }
+
+      // update product status
+      await productModel.updateOneRecord({ _id: product_id }, { status: 'Unlisted', sold: true });
+
+      // remove item from cart
+      const cartModel = new CartModel();
+      await cartModel.deleteOne({ product_id, buyer_id: user_id });
 
       return SuccessResponse.jsonResponse({ client_secret: isObject(data) && data?.clientSecret ? data.clientSecret : {} });
     } catch (error) {

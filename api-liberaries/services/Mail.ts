@@ -130,11 +130,11 @@ class MailService {
         return BaseExceptions.badRequest("Something went wrong.");
       }
 
-      if (empty(payload.access_code) || empty(payload.email)) {
+      if (empty(payload.reset_password_link) || empty(payload.email)) {
         return BaseExceptions.badRequest("Invalid mail parameters.");
       }
 
-      payload.subject = "Access Code";
+      payload.subject = "Reset Password";
 
       const file_path =
         "../../templates/handlebars/emails/forgot-password.handlebars";

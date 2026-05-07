@@ -22,6 +22,7 @@ export const ROUTE_PRODUCT_ADD_TO_CART = "/cart/add";
 export const ROUTE_PRODUCT_IN_CART = "/product/:product_id/in-cart";
 export const ROUTE_PRODUCTS_NUMBER_IN_CART = "/cart/products-count";
 export const ROUTE_PRODUCTS_IN_CART = "/cart/products";
+export const ROUTE_PRODUCTS_IN_CART_DELETE = "/cart/delete/:cart_id";
 
 // payment 
 export const ROUTE_RECORD_TRANSACTION = "/transaction/record";

@@ -45,7 +45,7 @@ class Utilities {
   }
 
   // generate Id
-  static async generateId(length: number): Promise<string> {
+  static generateId(length: number): string {
     const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let password = "";
     for (let i = 0; i < length; i++) {
@@ -54,23 +54,7 @@ class Utilities {
     }
     return password;
   }
-
-  // generate registration number
-  static async generateRegNo(currentSN: number): Promise<string> {
-    const now = new Date();
-    // Extract year, month, and day
-    const currentYear = now.getFullYear();
-    const currentMonth = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so we add 1 and pad with 0 if needed
-    const currentDay = String(now.getDate()).padStart(2, "0"); // Pad with 0 if needed
-
-    // Assuming "sn" is a running serial number, initialize it to 100000
-    const sn = currentSN + 1;
-
-    // Concatenate all the parts to form the registration number
-    const registrationNumber = `${currentYear}${currentMonth}${currentDay}${sn}`;
-    return registrationNumber;
-  }
-
+  
   // is dev
   static isDev(req: AppRequest): boolean {
     const environment = process.env.NODE_ENV;

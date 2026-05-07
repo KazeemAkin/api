@@ -59,6 +59,21 @@ class CartController extends BaseController {
       cartService.getProductsInCart(user_id),
     );
   }
+
+  /**
+   * Delete items in cart
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  async deleteItemInCart(req: AppRequest, res: AppResponse) {
+    const cartService = new CartService();
+    const { user_id, params } = req;
+    return CartController.processRequest(
+      res,
+      cartService.deleteProductInCart(user_id, params),
+    );
+  }
 }
 
 export default CartController;

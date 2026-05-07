@@ -40,7 +40,7 @@ class CartService {
 
       const productsModel = new ProductsModel();
       if (is_check_product) {
-        const product_details = await productsModel.getRowByField({ _id: sanitized_product_id });
+        const product_details = await productsModel.getRowByField({ _id: sanitized_product_id, status: "Listed", sold: { $ne: true } });
         if (!isDbObjectValid(product_details)) {
           return BaseExceptions.notFound("Failed to fetch product details.");
         }
@@ -177,11 +177,59 @@ class CartService {
       products.forEach(product => {
         if (isObject(product) && !empty(product?._id) && isObject(reIndexed_carts[product?._id])) {
           total_amount += product?.price || 0;
+          delete product._id;
           cart_products.push({ ...reIndexed_carts[product?._id], ...product });
         }
       })
 
       return SuccessResponse.jsonResponse({ cart_products, total_amount });
+    } catch (error) {
+      console.error(error);
+      return BaseExceptions.internalServerError();
+    }
+  }
+
+  /**
+   * Delete product in cart
+   * @param user_id 
+   * @param params 
+   * @returns 
+   */
+  async deleteProductInCart(user_id: string, params: DynamicObjectType) {
+    try {
+      if (empty(user_id)) {
+        return SuccessResponse.jsonResponse({ count: 0 });
+      }
+
+      //get request params
+      const post = !empty(params) ? params : {};
+      if (empty(post)) {
+        return BaseExceptions.badRequest("Request params cannot be empty!");
+      }
+
+      const schema = {
+        cart_id: { type: 'uuid' }
+      };
+
+      const validatedInputs = sanitizeAndValidateRequest(post, schema);
+      if (!empty(validatedInputs) && !empty(validatedInputs.errors)) {
+        return BaseExceptions.forbidden(
+          Object.values(validatedInputs.errors).join(", "),
+        );
+      }
+      const sanitizedInput =
+        !empty(validatedInputs) && !empty(validatedInputs.sanitizedValues)
+          ? validatedInputs.sanitizedValues
+          : {};
+      const cart_id = sanitizedInput?.cart_id || "";
+
+      const cartModel = new CartModel();
+      const delete_cart_item = await cartModel.deleteOne({ _id: cart_id });
+      if (!delete_cart_item) {
+        return BaseExceptions.badRequest("Failed to delete product.");
+      }
+
+      return SuccessResponse.response();
     } catch (error) {
       console.error(error);
       return BaseExceptions.internalServerError();

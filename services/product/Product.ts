@@ -181,7 +181,7 @@ class ProductService {
       }
 
       const productsModel = new ProductsModel();
-      const products = await productsModel.getAllRows({ ...search_value }, {}, query_obj.limit || 10);
+      const products = await productsModel.getAllRows({ ...search_value, status: 'Listed', sold: { $ne: true } }, {}, query_obj.limit || 10);
       if (!isArray(products)) {
         return BaseExceptions.notFound("Failed to fetch products.");
       }
