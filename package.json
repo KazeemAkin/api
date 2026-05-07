@@ -7,11 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p . --outDir dist_tmp && mv dist dist_old 2>/dev/null || true && mv dist_tmp dist && rm -rf dist_old",
     "build-and-copy": "npm run build && npm run copy-assets",
-    "live": "env-cmd -f ./.env node dist/src/server.js",
+    "live": "env-cmd -f ./.env node dist/server.js",
     "start-live-and-build": "npm run build-and-copy && npm run live",
     "dev": "env-cmd -f ./.env nodemon --exec ts-node --files ./server.ts",
     "lint": "eslint . --ext .ts,.tsx",
-    "copy-assets": "copyfiles private.key dist && copyfiles public.key dist && copyfiles -u 1 src/templates/handlebars/emails/**/* dist/src",
+    "copy-assets": "copyfiles private.key dist && copyfiles public.key dist && copyfiles -u 1 src/templates/handlebars/emails/**/* dist",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "keywords": [],
