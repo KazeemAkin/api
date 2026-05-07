@@ -249,8 +249,9 @@ class AuthConfig {
         userType: decoded.userType || "",
         success: true,
       };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Verify token error:", error);
+      // console.error("Verify token error:", error);
       // Auto-refresh attempt (pure version)
       const refreshResult = await AuthConfig.refreshTokenPure(authorization);
       if (refreshResult.success) {

@@ -118,6 +118,36 @@ class MailService {
       return false;
     }
   }
+
+  /**
+   * Forgot password email
+   * @param payload 
+   * @returns 
+   */
+  async sendForgotPasswordEmail(payload: DynamicObjectType = {}) {
+    try {
+      if (empty(payload)) {
+        return BaseExceptions.badRequest("Something went wrong.");
+      }
+
+      if (empty(payload.access_code) || empty(payload.email)) {
+        return BaseExceptions.badRequest("Invalid mail parameters.");
+      }
+
+      payload.subject = "Access Code";
+
+      const file_path =
+        "../../templates/handlebars/emails/forgot-password.handlebars";
+
+      const mailService = new MailService();
+      const sendMail = await mailService.sendMail(payload, file_path);
+
+      return sendMail;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 }
 
 export default MailService;

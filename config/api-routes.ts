@@ -27,6 +27,10 @@ export const ROUTE_PRODUCTS_IN_CART = "/cart/products";
 export const ROUTE_RECORD_TRANSACTION = "/transaction/record";
 export const ROUTE_PAYMENT_PRODUCT = "/payment/product";
 
+// transaction 
+export const ROUTE_TRANSACTION_HISTORY = "/transaction/history";
+export const ROUTE_TRANSACTION_RATE= "/transaction/rate";
+
 // chat
 export const ROUTE_CHAT_HISTORY = "/chat/history";
 export const ROUTE_CHAT_SEND = "/chat/send";

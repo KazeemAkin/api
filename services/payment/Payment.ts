@@ -67,7 +67,9 @@ class PaymentService {
         user_id,
         product_id,
         amount: product_cost,
-        seller_id
+        seller_id,
+        transaction_status: 'Completed',
+        payment_method: 'Stripe'
       });
       if (!record_transaction) {
         return BaseExceptions.badRequest("Failed to record transaction.");

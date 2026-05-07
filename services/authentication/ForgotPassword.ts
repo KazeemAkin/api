@@ -10,6 +10,7 @@ import {
 
 import UsersModel from "../../models/Users";
 import Utilities from "../../api-liberaries/utilities/Utilities";
+import MailService from "../../api-liberaries/services/Mail";
 
 // type
 export type SendAccessCodePostType = {
@@ -82,14 +83,16 @@ class ForgotPassword {
       return BaseExceptions.internalServerError("Failed to send access code.");
     }
 
+    
     // const mail = new MailService();
-    // const send_access_code = await mail.sendResetPasswordEmail({
-    //   access_code,
+    // const reset_link = `${process.env.SITE_URL}/reset-password?reset-token=`;
+    // const send_access_code = await mail.sendForgotPasswordEmail({
+    //   reset_link,
     //   email: user?.email || "",
-    //   url
+    //   first_name: user?.first_name
     // });
     // if (!send_access_code) {
-    // return BaseExceptions.badRequest("Failed to send resent link.");
+    //   return BaseExceptions.badRequest("Failed to send access code.");
     // }
 
     return SuccessResponse.response();
