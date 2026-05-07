@@ -1,4 +1,4 @@
-// import { Callback } from "./api-liberaries/types/callback.data";
+import { Callback } from "./api-liberaries/types/callback.data";
 
 import dotenv from "dotenv";
 import express from "express";
@@ -30,9 +30,30 @@ const app = express();
 //     allowedHeaders: ["Content-Type", "Authorization", "AccessToken"],
 //   }),
 // );
-app.use(cors({
-  origin: process.env.SITE_URL,
-}));
+const allowedOrigins = [
+  'https://student-e-commerce.handivice.com',
+];
+
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: Callback) {
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', "AccessToken"],
+  // maxAge: 86400,               // Cache preflight for 24 hours
+};
+
+app.use(cors(corsOptions));
+
+// Explicitly handle preflight for all routes (helps in some cases)
+// app.options('*', cors(corsOptions));
 
 // Body Parser middleware
 app.use(bodyParser.json({ limit: "100mb" }));
