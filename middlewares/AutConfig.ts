@@ -31,13 +31,13 @@ class AuthConfig {
   static jwtSigninOptions: JWTSigninOptions = {
     algorithm: "HS256",
     expiresIn: "8h",
-    issuer: process.env.issuer || "handivice api",
-    audience: process.env.DOMAIN || "https://handivice.com",
+    issuer: process.env.issuer || "student-e-commerce.handivice api",
+    audience: process.env.DOMAIN || "https://student-e-commerce.handivice.com",
   };
 
   static jwtVerifyOptions: JWTVerifyOptions = {
-    audience: process.env.DOMAIN || "https://handivice.com",
-    issuer: process.env.issuer || "handivice api",
+    audience: process.env.DOMAIN || "https://student-e-commerce.handivice.com",
+    issuer: process.env.issuer || "student-e-commerce.handivice api",
     algorithm: ["HS256"],
   };
 
@@ -326,7 +326,7 @@ class AuthConfig {
     if (!result.success) {
       return BaseController.failedResponse(
         res,
-        result.error || "Invalid authentication token1",
+        result.error || "Invalid authentication token",
         401,
       );
     }
