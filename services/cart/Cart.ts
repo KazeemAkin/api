@@ -177,8 +177,7 @@ class CartService {
       products.forEach(product => {
         if (isObject(product) && !empty(product?._id) && isObject(reIndexed_carts[product?._id])) {
           total_amount += product?.price || 0;
-          delete product._id;
-          cart_products.push({ ...reIndexed_carts[product?._id], ...product });
+          cart_products.push({ ...product, ...reIndexed_carts[product?._id],  });
         }
       })
 
