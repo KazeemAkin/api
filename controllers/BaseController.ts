@@ -15,6 +15,9 @@ class BaseController {
     try {
       const response: DynamicObjectType = await serviceResponse;
       if (response.success) {
+        if (response?.data?.jwt?.accessToken) {
+          res.setHeader("AccessToken", response.data.jwt.accessToken);
+        }
         const response_data: DynamicObjectType =
           isArray(response?.data) || isObject(response?.data)
             ? response?.data

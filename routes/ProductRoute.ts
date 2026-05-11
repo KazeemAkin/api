@@ -3,6 +3,7 @@ import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import ProductController from "../controllers/ProductController";
 import AuthConfig from "../middlewares/AutConfig";
 import { ROUTE_PRODUCT, ROUTE_PRODUCT_ADD, ROUTE_PRODUCT_DELETE, ROUTE_PRODUCT_LISTINGS, ROUTE_PRODUCT_UPDATE, ROUTE_PRODUCTS_USER } from "../config/api-routes";
+import { asyncHandler } from "../config/handler";
 
 //middlewares
 const router: Router = express.Router();
@@ -10,7 +11,7 @@ const router: Router = express.Router();
 // add product route
 router.post(
   ROUTE_PRODUCT_ADD,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.PostAddProduct(req, res);
@@ -20,7 +21,7 @@ router.post(
 // get user products 
 router.get(
   ROUTE_PRODUCTS_USER,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.getUserProducts(req, res);
@@ -48,7 +49,7 @@ router.get(
 // update product details
 router.patch(
   ROUTE_PRODUCT_UPDATE,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.updateProductDetails(req, res);
@@ -58,7 +59,7 @@ router.patch(
 // delete product
 router.delete(
   ROUTE_PRODUCT_DELETE,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const productController = new ProductController();
     return productController.deleteProduct(req, res);

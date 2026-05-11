@@ -18,6 +18,7 @@ import AuthConfig from "../middlewares/AutConfig";
 const router: Router = express.Router();
 
 import { Request, Response } from "express";
+import { asyncHandler } from "../config/handler";
 
 // send access code route
 router.post(ROUTE_SEND_ACCESS_CODE, (req: Request, res: Response) => {
@@ -49,7 +50,7 @@ router.patch(ROUTE_REGISTER_USER, (req: Request, res: Response) => {
 // set user type
 router.patch(
   ROUTE_SET_USER_TYPE,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: Request, res: Response) => {
     const authController = new AuthenticationController();
     return authController.patchSetUserType(
@@ -62,7 +63,7 @@ router.patch(
 // set items of interest
 router.patch(
   ROUTE_SET_ITEMS_OF_INTEREST,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: Request, res: Response) => {
     const authController = new AuthenticationController();
     return authController.patchSetItemsOfInterest(

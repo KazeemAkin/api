@@ -29,7 +29,7 @@ class JWTTokenService {
    * @param {*} user_id
    * @returns
    */
-  async getToken(token: string, user_id: string): Promise<DynamicObjectType> {
+  async getToken(token: string): Promise<DynamicObjectType> {
     try {
       if (empty(token)) {
         return {};
@@ -37,7 +37,6 @@ class JWTTokenService {
       const jwtTokenModel = new JWTTokenModel();
       const refresh_token = await jwtTokenModel.getRowByField({
         tokenId: token,
-        userId: user_id,
       });
       if (!isDbObjectValid(refresh_token)) {
         return {};

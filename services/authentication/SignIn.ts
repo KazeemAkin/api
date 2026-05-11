@@ -93,7 +93,7 @@ class SignIn {
         email,
         user_type: isArray(user?.user_types) ? user.user_types : ["Seller"],
       };
-      const jwt = await AuthConfig.signJWTToken(jwt_payload);
+      const jwt = await AuthConfig.signTokens(jwt_payload);
       if (!jwt) {
         return BaseExceptions.unauthorized(
           "Authentication failed. Try again later.",

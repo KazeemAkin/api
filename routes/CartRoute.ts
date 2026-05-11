@@ -3,6 +3,7 @@ import { AppRequest, AppResponse } from "../api-liberaries/types/global.data";
 import AuthConfig from "../middlewares/AutConfig";
 import { ROUTE_PRODUCT_ADD_TO_CART, ROUTE_PRODUCT_IN_CART, ROUTE_PRODUCTS_IN_CART, ROUTE_PRODUCTS_IN_CART_DELETE, ROUTE_PRODUCTS_NUMBER_IN_CART } from "../config/api-routes";
 import CartController from "../controllers/CartController";
+import { asyncHandler } from "../config/handler";
 
 //middlewares
 const router: Router = express.Router();
@@ -10,7 +11,7 @@ const router: Router = express.Router();
 // add product to cart
 router.post(
   ROUTE_PRODUCT_ADD_TO_CART,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.postAddToCart(req, res);
@@ -20,7 +21,7 @@ router.post(
 // check if product is in cart
 router.get(
   ROUTE_PRODUCT_IN_CART,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.getIsProductInCart(req, res);
@@ -30,7 +31,7 @@ router.get(
 // get no of products in cart ROUTE_PRODUCTS_NUMBER_IN_CART
 router.get(
   ROUTE_PRODUCTS_NUMBER_IN_CART,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.getNoOfProductsInCart(req, res);
@@ -40,7 +41,7 @@ router.get(
 // get products in cart
 router.get(
   ROUTE_PRODUCTS_IN_CART,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.getProductsInCart(req, res);
@@ -50,7 +51,7 @@ router.get(
 // delete cart 
 router.delete(
   ROUTE_PRODUCTS_IN_CART_DELETE,
-  AuthConfig.verifyUser,
+  asyncHandler(AuthConfig.verifyUser),
   (req: AppRequest, res: AppResponse) => {
     const cartController = new CartController();
     return cartController.deleteItemInCart(req, res);

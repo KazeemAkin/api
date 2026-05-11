@@ -21,6 +21,7 @@ export type AppRequest =
   | (Request & {
       user_id: string | DynamicObjectType;
       user_type: string | DynamicObjectType;
+      refresh_token: string | DynamicObjectType;
     });
 
 export type CenterPointType = {

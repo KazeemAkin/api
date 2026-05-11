@@ -15,6 +15,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
+  exposedHeaders: ["AccessToken"],
   origin: function (origin: string | undefined, callback: Callback) {
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
@@ -25,8 +26,8 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', "AccessToken"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', "AccessToken"],
 };
 
 app.use(cors(corsOptions));
